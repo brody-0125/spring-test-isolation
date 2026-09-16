@@ -1,0 +1,16 @@
+plugins { id 'java-gradle-plugin'; id 'maven-publish' }
+group = 'io.github.brody-0125'
+version = '0.1.0-SNAPSHOT'
+repositories { mavenCentral() }
+java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+dependencies { implementation 'org.testcontainers:testcontainers-postgresql:2.0.5' }
+gradlePlugin {
+    plugins {
+        isolatedTests {
+            id = 'io.github.brody-0125.spring-test-isolation'
+            implementationClass = 'io.github.brody0125.springtestisolation.gradle.IsolatedTestsPlugin'
+            displayName = 'Spring Test Isolation'
+            description = 'Run Spring tests across Gradle workers with shared containers and isolated worker storage.'
+        }
+    }
+}

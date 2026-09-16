@@ -1,0 +1,16 @@
+apply plugin: 'maven-publish'
+base { archivesName = 'spring-test-isolation-runtime' }
+publishing { publications { library(MavenPublication) { from components.java; artifactId = 'spring-test-isolation-runtime' } } }
+dependencies {
+    api 'org.springframework:spring-test:6.2.8'
+    api 'org.springframework:spring-context:6.2.8'
+    implementation 'org.springframework:spring-jdbc:6.2.8'
+    implementation 'org.springframework.data:spring-data-redis:3.5.1'
+    api 'com.github.seregamorph:spring-test-smart-context:1.0'
+    implementation 'org.postgresql:postgresql:42.7.7'
+    api 'redis.clients:jedis:5.2.0'
+    implementation 'org.junit.platform:junit-platform-launcher:1.12.2'
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.12.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.2'
+}

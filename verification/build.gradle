@@ -1,0 +1,74 @@
+plugins { id 'io.github.brody-0125.spring-test-isolation' }
+tasks.withType(Test).configureEach { testLogging { exceptionFormat = 'full' } }
+apply from: 'dependencies.gradle'
+isolatedTests { workers = providers.gradleProperty('workers').map { it.toInteger() }.orElse(2) }
+test {
+    useJUnitPlatform { excludeTags 'negative', 'guard' }
+    systemProperty 'fixture.classpath', sourceSets.test.runtimeClasspath.asPath
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed', 'skipped'; showStandardStreams = true }
+}
+
+tasks.register('workflowTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    include '**/workflow/Workflow*Test.class'
+    systemProperty 'fixture.workflowPeers', providers.gradleProperty('workers').getOrElse('2')
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('guardFailureTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'guard' }
+    include '**/ConcurrentGuardTest.class'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('missingListenerTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'guard' }
+    include '**/MissingListenerGuardTest.class'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('initializationFailureTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'guard' }
+    include '**/Initialization*Test.class'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('connectionGuardTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'guard' }
+    include '**/ConnectionGuardTest.class'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('invalidSettingsTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'false'
+}
+tasks.register('cleanupFailureTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'negative' }
+    include '**/Cleanup*Test.class'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('boundaryTimeoutTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'negative' }
+    include '**/Cleanup*Test.class'
+    systemProperty 'fixture.timeout', 'true'
+    systemProperty 'springtestisolation.boundaryTimeoutMillis', '500'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
