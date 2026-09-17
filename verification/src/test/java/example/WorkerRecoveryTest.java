@@ -7,6 +7,46 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorkerRecoveryTest {
+    @Test void createDatabaseFailureReservesSlotWithoutDatabase() throws Exception {
+        var properties = new java.util.Properties();
+        try (var in = Files.newInputStream(Path.of(System.getProperty("springtestisolation.descriptor")))) {
+            properties.load(in);
+        }
+        String adminUser = properties.getProperty("user");
+        String adminPassword = properties.getProperty("password");
+        String jdbc = properties.getProperty("jdbc");
+        String limitedUser = "ptk_slotfail_" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        String database = jdbc.substring(jdbc.lastIndexOf('/') + 1);
+        int query = database.indexOf('?');
+        if (query >= 0) database = database.substring(0, query);
+        try (var connection = java.sql.DriverManager.getConnection(jdbc, adminUser, adminPassword);
+             var statement = connection.createStatement()) {
+            statement.execute("CREATE USER " + limitedUser + " WITH PASSWORD 'secret' LOGIN");
+            statement.execute("GRANT CONNECT ON DATABASE " + database + " TO " + limitedUser);
+        }
+        Path directory = Files.createTempDirectory("ptk-create-failure-");
+        Path descriptor = directory.resolve("connection.properties");
+        properties.setProperty("user", limitedUser);
+        properties.setProperty("password", "secret");
+        try (var out = Files.newOutputStream(descriptor)) { properties.store(out, "User without CREATEDB"); }
+        try {
+            String output = probe("create-db-failure", 1, descriptor.toString());
+            assertFalse(output.contains("PTK database-created"), output);
+            try (var slots = Files.list(directory)) {
+                assertTrue(slots.anyMatch(path -> path.getFileName().toString().startsWith("slot-")),
+                        "Slot file must remain after CREATE DATABASE failure: " + directory);
+            }
+            System.out.println("CREATE_DATABASE_FAILURE_SLOT_PASS");
+        } finally {
+            try (var connection = java.sql.DriverManager.getConnection(jdbc, adminUser, adminPassword);
+                 var statement = connection.createStatement()) {
+                statement.execute("DROP USER IF EXISTS " + limitedUser);
+            } catch (Exception ignored) { }
+            try (var paths = Files.walk(directory)) {
+                for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
+        }
+    }
     @Test void crashDoesNotRecycleStorageIntoRetry() throws Exception {
         String crashed = probe("crash", 17);
         String retry = probe("retry", 0);

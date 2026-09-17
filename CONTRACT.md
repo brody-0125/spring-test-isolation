@@ -23,13 +23,13 @@ Run Spring test classes across Gradle worker JVMs while sharing one PostgreSQL c
 
 The Build Service owns containers. A worker owns its PostgreSQL database, Redis logical database, and Redis ACL account. Spring contexts own connection pools and clients. The application's ClassBoundary adapter stops background work and resets local state; the runtime controls hook order and time limits.
 
-Workers allocate storage through atomic file creation. A crashed worker's storage remains reserved for the rest of the build, and container shutdown removes it. Each build starts fresh containers. Initialization or cleanup failure, or a detected execution policy conflict, blocks subsequent test bodies in that worker.
+Workers allocate storage through atomic file creation. A crashed worker's storage remains reserved for the rest of the build, and container shutdown removes it. Each build starts fresh containers. A failed worker allocation poisons the worker and leaves any claimed slot file in place until the build-owned descriptor directory is removed; a shutdown hook registers only after allocation succeeds. Initialization or cleanup failure, or a detected execution policy conflict, blocks subsequent test bodies in that worker.
 
 Keep required @DirtiesContext annotations for context changes that the hooks cannot undo. Neither context caching nor Smart Context's eager closure replaces the application's cleanup contract.
 
 ## Scope
 
-The tested paths use PostgreSQL JDBC, standalone Redis with Spring Data Redis Lettuce, JUnit Jupiter, and spring-test-smart-context 1.0. Pub/Sub requires the provided namespace helpers. Native clients, static state, untracked tasks, and server-wide changes need explicit integration. Schema changes and external state require reset adapters beyond the built-in table cleanup.
+The tested paths use PostgreSQL JDBC, standalone Redis with Spring Data Redis Lettuce, JUnit Jupiter, and spring-test-smart-context 1.0. Pub/Sub requires the provided namespace helpers. @Nested test classes and @ContextHierarchy are rejected. Flyway against the worker database is covered by a smoke fixture only; Liquibase is not executed in fixtures. Native clients, static state, untracked tasks, and server-wide changes need explicit integration. Schema changes and external state require reset adapters beyond the built-in table cleanup.
 
 The library assumes trusted test code. Redis ACLs do not prevent arbitrary SELECT commands from choosing another logical database.
 

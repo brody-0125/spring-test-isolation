@@ -5,6 +5,15 @@ import io.github.brody0125.springtestisolation.WorkerStore;
 /** Separate JVM exercising allocation, hard crash (no hooks), and fresh retry. */
 public class WorkerProbe {
     public static void main(String[] args) throws Exception {
+        if (args.length > 0 && "create-db-failure".equals(args[0])) {
+            try {
+                WorkerStore.get();
+                System.err.println("UNEXPECTED_ALLOCATION_SUCCESS");
+                System.exit(2);
+            } catch (Exception e) {
+                System.exit(1);
+            }
+        }
         WorkerStore store = WorkerStore.get();
         try (var c = store.connection(); var s = c.createStatement()) {
             s.execute("CREATE TABLE probe (id integer primary key)");

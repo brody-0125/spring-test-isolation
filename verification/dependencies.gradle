@@ -6,6 +6,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-redis'
     testImplementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.flywaydb:flyway-core:10.22.0'
+    testImplementation 'org.flywaydb:flyway-database-postgresql:10.22.0'
     testRuntimeOnly 'org.postgresql:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

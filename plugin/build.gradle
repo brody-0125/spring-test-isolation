@@ -3,7 +3,12 @@ group = 'io.github.brody-0125'
 version = '0.1.0-SNAPSHOT'
 repositories { mavenCentral() }
 java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
-dependencies { implementation 'org.testcontainers:testcontainers-postgresql:2.0.5' }
+dependencies {
+    implementation 'org.testcontainers:testcontainers-postgresql:2.0.5'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.2'
+}
+test { useJUnitPlatform() }
 gradlePlugin {
     plugins {
         isolatedTests {
