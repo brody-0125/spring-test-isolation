@@ -1,7 +1,13 @@
 plugins { id 'io.github.brody-0125.spring-test-isolation' }
 tasks.withType(Test).configureEach { testLogging { exceptionFormat = 'full' } }
 apply from: 'dependencies.gradle'
-isolatedTests { workers = providers.gradleProperty('workers').map { it.toInteger() }.orElse(2) }
+isolatedTests {
+    workers = providers.gradleProperty('workers').map { it.toInteger() }.orElse(2)
+    postgresImage = rootProject.containerImages.postgres
+    redisImage = rootProject.containerImages.redis
+    redisLogicalDatabases = rootProject.cacheInfrastructure.redisLogicalDatabases.toInteger()
+    maxCacheSlots = rootProject.cacheInfrastructure.maxWorkerSlots.toInteger()
+}
 test {
     useJUnitPlatform { excludeTags 'negative', 'guard' }
     systemProperty 'fixture.classpath', sourceSets.test.runtimeClasspath.asPath
