@@ -121,6 +121,8 @@ isolatedTests {
 
 Additional engines register by implementing `JdbcWorkerBackend` / `CacheWorkerBackend` in the runtime module and `JdbcInfrastructureProvider` / `CacheInfrastructureProvider` in the plugin module, then wiring ids into the registries.
 
+One Gradle build uses a single shared Build Service and one `jdbc.backend` / `cache.backend` pair; the first registered plugin configuration wins if subprojects disagree.
+
 ## Remaining limitations
 
 - We tested the version combination above under the ClassBoundary and storage access contracts. Test other versions, operating systems, and large applications before adopting them.

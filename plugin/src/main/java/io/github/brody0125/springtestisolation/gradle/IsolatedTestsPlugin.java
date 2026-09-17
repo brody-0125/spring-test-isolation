@@ -5,6 +5,7 @@ import org.gradle.api.provider.*;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.process.CommandLineArgumentProvider;
+import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureProviders;
 import java.util.List;
 
 public class IsolatedTestsPlugin implements Plugin<Project> {
@@ -64,6 +65,12 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
         project.afterEvaluate(p -> {
             int workers = options.getWorkers().get();
             if (workers < 1 || workers > 255) throw new GradleException("workers must be between 1 and 255");
+            try {
+                InfrastructureProviders.jdbc(options.getJdbcBackend().get());
+                InfrastructureProviders.cache(options.getCacheBackend().get());
+            } catch (IllegalArgumentException e) {
+                throw new GradleException(e.getMessage(), e);
+            }
             p.getTasks().withType(Test.class).configureEach(test -> test.setMaxParallelForks(workers));
         });
     }
