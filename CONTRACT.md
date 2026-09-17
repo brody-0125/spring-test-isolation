@@ -29,7 +29,7 @@ Keep required @DirtiesContext annotations for context changes that the hooks can
 
 ## Scope
 
-The tested paths use PostgreSQL JDBC, standalone Redis with Spring Data Redis Lettuce, JUnit Jupiter, and spring-test-smart-context 1.0. Pub/Sub requires the provided namespace helpers. @Nested test classes and @ContextHierarchy are rejected. Flyway against the worker database is covered by a smoke fixture only; Liquibase is not executed in fixtures. Native clients, static state, untracked tasks, and server-wide changes need explicit integration. Schema changes and external state require reset adapters beyond the built-in table cleanup.
+The tested paths use PostgreSQL JDBC and standalone Redis with Spring Data Redis Lettuce by default (`jdbc.backend` / `cache.backend`); additional engines register through the JDBC and cache worker backends described in VERIFICATION.md. JUnit Jupiter and spring-test-smart-context 1.0 apply to all backends. Pub/Sub requires the provided namespace helpers. @Nested test classes and @ContextHierarchy are rejected. Flyway against the worker database is covered by a smoke fixture only; Liquibase is not executed in fixtures. Native clients, static state, untracked tasks, and server-wide changes need explicit integration. Schema changes and external state require reset adapters beyond the built-in table cleanup.
 
 The library assumes trusted test code. Redis ACLs do not prevent arbitrary SELECT commands from choosing another logical database.
 
