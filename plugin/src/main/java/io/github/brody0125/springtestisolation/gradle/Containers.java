@@ -3,6 +3,7 @@ package io.github.brody0125.springtestisolation.gradle;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.CacheInfrastructureProvider;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureProviders;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.JdbcInfrastructureProvider;
+import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureConfiguration;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.StartedInfrastructure;
 import org.gradle.api.provider.Property;
 import org.gradle.api.services.BuildService;
@@ -15,6 +16,10 @@ public abstract class Containers implements BuildService<Containers.Parameters>,
     public interface Parameters extends BuildServiceParameters {
         Property<String> getJdbcBackend();
         Property<String> getCacheBackend();
+        Property<String> getPostgresImage();
+        Property<String> getRedisImage();
+        Property<Integer> getRedisLogicalDatabases();
+        Property<Integer> getMaxCacheSlots();
     }
 
     private StartedInfrastructure jdbc;
@@ -30,10 +35,15 @@ public abstract class Containers implements BuildService<Containers.Parameters>,
         try {
             String jdbcId = getParameters().getJdbcBackend().getOrElse("postgresql");
             String cacheId = getParameters().getCacheBackend().getOrElse("redis");
+            InfrastructureConfiguration configuration = InfrastructureConfiguration.resolve(
+                    getParameters().getPostgresImage(),
+                    getParameters().getRedisImage(),
+                    getParameters().getRedisLogicalDatabases(),
+                    getParameters().getMaxCacheSlots());
             JdbcInfrastructureProvider jdbcProvider = InfrastructureProviders.jdbc(jdbcId);
             CacheInfrastructureProvider cacheProvider = InfrastructureProviders.cache(cacheId);
-            jdbc = jdbcProvider.start();
-            cache = cacheProvider.start();
+            jdbc = jdbcProvider.start(configuration);
+            cache = cacheProvider.start(configuration);
             Path directory = Files.createTempDirectory("spring-test-isolation-");
             Properties p = new Properties();
             p.setProperty("run", UUID.randomUUID().toString());
