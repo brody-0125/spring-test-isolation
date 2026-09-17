@@ -30,5 +30,6 @@ First stable release of Spring Test Isolation for the verified version matrix in
 
 - README restructured for 1.0.0 consumption, publication coordinates, and evidence boundaries.
 - [RELEASING.md](RELEASING.md) documents the release and publication workflow.
+- [PUBLISHING.md](PUBLISHING.md) and Maven Central Gradle configuration (Vanniktech Maven Publish; plugin marker + runtime).
 
 [1.0.0]: https://github.com/brody-0125/spring-test-isolation/releases/tag/v1.0.0

@@ -30,7 +30,9 @@ Unsupported in 1.0.0: `@Nested`, `@ContextHierarchy`, Redis Cluster/Sentinel, Te
 
 **Requirements:** JDK 17, Docker (Linux engine), Gradle with JUnit Platform.
 
-Publication to Maven Central / the Plugin Portal is **not** part of this repository yet. Publish to **Maven Local** from a clone of this repo:
+Publication uses [gradle.properties](gradle.properties) for the version. **Maven Central** is the only public registry — see [PUBLISHING.md](PUBLISHING.md) (plugin marker + runtime JAR).
+
+**Maven Local** (development, from a clone of this repo):
 
 ```powershell
 ./gradlew :runtime:publishToMavenLocal
@@ -46,11 +48,11 @@ Publication to Maven Central / the Plugin Portal is **not** part of this reposit
 | Java package | `io.github.brody0125.springtestisolation` |
 | Gradle extension | `isolatedTests` |
 
-`settings.gradle`:
+`settings.gradle` (use `mavenLocal()` while testing unpublished builds):
 
 ```groovy
 pluginManagement {
-    repositories { mavenLocal(); gradlePluginPortal(); mavenCentral() }
+    repositories { mavenCentral() }
 }
 ```
 
@@ -117,7 +119,8 @@ Keep `@DirtiesContext` when hooks cannot undo context mutations.
 | [CONTRACT.md](CONTRACT.md) | Isolation contract (C1–C10) |
 | [VERIFICATION.md](VERIFICATION.md) | Tested versions and evidence |
 | [INTEGRATION-RESEARCH.md](INTEGRATION-RESEARCH.md) | External references and scope |
-| [RELEASING.md](RELEASING.md) | Tagging and publication steps |
+| [PUBLISHING.md](PUBLISHING.md) | Maven Central publication |
+| [RELEASING.md](RELEASING.md) | Tagging and GitHub Release steps |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, commits, PRs |
 
 ## Compatibility summary

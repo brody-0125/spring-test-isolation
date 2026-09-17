@@ -1,6 +1,6 @@
 allprojects {
-    group = 'io.github.brody-0125'
-    version = '1.0.0'
+    group = findProperty('group') ?: 'io.github.brody-0125'
+    version = findProperty('version') ?: '1.0.0'
     repositories { mavenCentral() }
 }
 subprojects {

@@ -23,7 +23,7 @@ Consumer coordinates for **1.0.0**:
 | Gradle plugin | `io.github.brody-0125.spring-test-isolation:1.0.0` |
 | Runtime JAR | `io.github.brody-0125:spring-test-isolation-runtime:1.0.0` |
 
-Maven Central and the Gradle Plugin Portal are **not** configured in this repository. Releases are published to **Maven Local** or your own repository until external publication is set up.
+Artifacts publish to **Maven Central** only; see [PUBLISHING.md](PUBLISHING.md) for accounts, credentials, and commands.
 
 ## Local publication smoke test
 
@@ -33,7 +33,7 @@ Maven Central and the Gradle Plugin Portal are **not** configured in this reposi
 ./gradlew -p plugin validatePlugins
 ```
 
-Use the consumer example in [README.md](README.md) with `mavenLocal()` and version `1.0.0`.
+Use the consumer example in [README.md](README.md) with `mavenLocal()` and the `version` from [gradle.properties](gradle.properties).
 
 ## Git tag and GitHub release
 
@@ -45,7 +45,8 @@ Use the consumer example in [README.md](README.md) with `mavenLocal()` and versi
    git push origin v1.0.0
    ```
 
-3. Create a GitHub release from tag `v1.0.0` and paste the `[1.0.0]` section from [CHANGELOG.md](CHANGELOG.md).
+3. Publish to Maven Central per [PUBLISHING.md](PUBLISHING.md).
+4. Create a GitHub release from tag `v1.0.0` and paste the `[1.0.0]` section from [CHANGELOG.md](CHANGELOG.md).
 
 ## After release
 

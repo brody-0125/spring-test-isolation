@@ -1,0 +1,22 @@
+ext.springTestIsolationPom = { MavenPom pom ->
+    pom.name = project.ext.has('publishArtifactTitle') ? project.ext.publishArtifactTitle : project.name
+    pom.description = 'Parallel Spring tests across Gradle workers with shared containers and per-worker storage isolation.'
+    pom.url = 'https://github.com/brody-0125/spring-test-isolation'
+    pom.licenses {
+        license {
+            name = 'MIT License'
+            url = 'https://opensource.org/licenses/MIT'
+        }
+    }
+    pom.developers {
+        developer {
+            id = 'seokhyeon'
+            name = 'Seokhyeon Kim'
+        }
+    }
+    pom.scm {
+        connection = 'scm:git:git://github.com/brody-0125/spring-test-isolation.git'
+        developerConnection = 'scm:git:ssh://github.com/brody-0125/spring-test-isolation.git'
+        url = 'https://github.com/brody-0125/spring-test-isolation'
+    }
+}

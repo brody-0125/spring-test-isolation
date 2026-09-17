@@ -1,6 +1,28 @@
-apply plugin: 'maven-publish'
+plugins {
+    id 'com.vanniktech.maven.publish'
+}
+apply from: rootProject.file('gradle/publish-pom.gradle')
+
 base { archivesName = 'spring-test-isolation-runtime' }
-publishing { publications { library(MavenPublication) { from components.java; artifactId = 'spring-test-isolation-runtime' } } }
+
+java { withSourcesJar() }
+
+def signingConfigured = project.hasProperty('signing.keyId')
+        || project.hasProperty('signingInMemoryKey')
+        || project.hasProperty('signing.secretKeyRingFile')
+
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, true)
+    if (signingConfigured) {
+        signAllPublications()
+    }
+    coordinates(project.group.toString(), 'spring-test-isolation-runtime', project.version.toString())
+    pom {
+        name = 'spring-test-isolation-runtime'
+        springTestIsolationPom(delegate)
+    }
+}
+
 dependencies {
     api 'org.springframework:spring-test:6.2.8'
     api 'org.springframework:spring-context:6.2.8'
