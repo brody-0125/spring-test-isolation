@@ -45,7 +45,7 @@ Use the consumer example in [README.md](README.md) with `mavenLocal()` and the `
    git push origin v1.0.0
    ```
 
-3. Publish to Maven Central per [PUBLISHING.md](PUBLISHING.md).
+3. Pushing the tag runs the **Publish to Maven Central** workflow; confirm it succeeds under Actions (see [PUBLISHING.md](PUBLISHING.md) for required GitHub Secrets).
 4. Create a GitHub release from tag `v1.0.0` and paste the `[1.0.0]` section from [CHANGELOG.md](CHANGELOG.md).
 
 ## After release

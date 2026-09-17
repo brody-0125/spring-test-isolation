@@ -47,16 +47,25 @@ Use `mavenLocal()` in the consumer instead of `mavenCentral()` while testing.
 
 1. Register at [central.sonatype.com](https://central.sonatype.com/) and verify namespace `io.github.brody-0125`.
 2. Create an OpenPGP key and publish the public key to a keyserver.
-3. Add credentials and signing to `~/.gradle/gradle.properties` (see [gradle.properties.example](gradle.properties.example)).
+3. Add repository **Secrets** (Settings → Secrets and variables → Actions):
+
+   | Secret | Value |
+   |--------|--------|
+   | `MAVEN_CENTRAL_USERNAME` | Sonatype user token username |
+   | `MAVEN_CENTRAL_PASSWORD` | Sonatype user token password |
+   | `GPG_PRIVATE_KEY` | Armored OpenPGP private key (full `BEGIN … END` block) |
+   | `GPG_PASSPHRASE` | Private key passphrase |
 
 ## Publish a release
 
+Pushing an annotated version tag triggers [.github/workflows/publish-maven-central.yml](.github/workflows/publish-maven-central.yml). The workflow strips the `v` prefix and passes `-Pversion=…` to Gradle (for example tag `v1.0.0` → version `1.0.0`).
+
 ```powershell
-./gradlew :runtime:publishToMavenCentral
-./gradlew -p plugin publishToMavenCentral
+git tag -a v1.0.0 -m "Release 1.0.0"
+git push origin v1.0.0
 ```
 
-Signing is required for Central. Configure `signing.keyId` / `signing.secretKeyRingFile`, or `signingInMemoryKey` for CI.
+Signing uses in-memory key properties (`signingInMemoryKey` / `signingInMemoryKeyPassword`) from those secrets. For ad-hoc local publishes, set the same properties via `ORG_GRADLE_PROJECT_*` environment variables or `~/.gradle/gradle.properties` — never commit credentials.
 
 Gradle uses the [Vanniktech Maven Publish](https://github.com/vanniktech/gradle-maven-publish-plugin) plugin. The `java-gradle-plugin` setup publishes both the plugin JAR and the **plugin marker** Maven publication to Central.
 
