@@ -20,6 +20,7 @@ public final class WorkerStore implements AutoCloseable {
         if (poison != null) throw new IllegalStateException("Worker poisoned: subsequent tests must not execute", poison);
     }
     public static synchronized void poison(Throwable cause) { if (poison == null) poison = cause; }
+    /** Registers a shutdown hook only after allocation succeeds; failed construction keeps the slot file until build end. */
     public static synchronized WorkerStore get() {
         healthy();
         if (instance == null) {
@@ -95,15 +96,23 @@ public final class WorkerStore implements AutoCloseable {
         }
         try (Jedis redis = redis()) { redis.flushDB(); }
     }
+    /** Keeps the first cleanup failure primary so a later Redis error cannot mask DROP DATABASE. */
+    static Exception combineCleanupFailures(Exception first, Exception second) {
+        if (second == null) return first;
+        if (first == null) return second;
+        first.addSuppressed(second);
+        return first;
+    }
     @Override public void close() throws Exception {
+        Exception failure = null;
         try (Connection c = admin(); Statement s = c.createStatement()) {
             s.execute("DROP DATABASE IF EXISTS " + quote(database) + " WITH (FORCE)");
-        } finally {
-            try (Jedis admin = new Jedis(redisHost(), redisPort())) {
-                admin.select(redisDatabase);
-                admin.flushDB();
-                admin.aclDelUser(database);
-            }
-        }
+        } catch (Exception e) { failure = e; }
+        try (Jedis admin = new Jedis(redisHost(), redisPort())) {
+            admin.select(redisDatabase);
+            admin.flushDB();
+            admin.aclDelUser(database);
+        } catch (Exception e) { failure = combineCleanupFailures(failure, e); }
+        if (failure != null) throw failure;
     }
 }

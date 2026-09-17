@@ -1,5 +1,7 @@
 # Spring Test Isolation
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch names, commit messages, and PR expectations.
+
 Run Spring test classes in parallel across Gradle workers. The build shares one PostgreSQL container and one Redis container. Each worker uses its own PostgreSQL database, Redis logical database, and Pub/Sub namespace. Classes and methods run in sequence within a worker. Spring TestContext caches and reuses contexts; `spring-test-smart-context` groups classes by configuration and closes a context after its last class.
 
 This prototype targets JUnit Jupiter, Spring Boot 3.5.1, and the versions in [VERIFICATION.md](VERIFICATION.md). The pinned versions describe the tested combination, not the latest releases.

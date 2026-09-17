@@ -46,20 +46,24 @@ public abstract class Containers implements BuildService<BuildServiceParameters.
         } finally { Thread.currentThread().setContextClassLoader(previous); }
     }
 
+    /** First infrastructure shutdown failure stays primary; later steps attach as suppressed. */
+    static RuntimeException combineCloseFailures(RuntimeException first, RuntimeException second) {
+        if (second == null) return first;
+        if (first == null) return second;
+        first.addSuppressed(second);
+        return first;
+    }
     @Override public synchronized void close() {
         if (closed) return;
         closed = true;
         RuntimeException failure = null;
         try { if (redis != null) redis.stop(); } catch (RuntimeException e) { failure = e; }
-        try { if (postgres != null) postgres.stop(); } catch (RuntimeException e) {
-            if (failure == null) failure = e; else failure.addSuppressed(e);
-        }
+        try { if (postgres != null) postgres.stop(); } catch (RuntimeException e) { failure = combineCloseFailures(failure, e); }
         if (descriptor != null) {
             try (var paths = Files.walk(descriptor.getParent())) {
                 for (Path p : paths.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(p);
             } catch (Exception e) {
-                if (failure == null) failure = new IllegalStateException("Cannot remove infrastructure descriptor", e);
-                else failure.addSuppressed(e);
+                failure = combineCloseFailures(failure, new IllegalStateException("Cannot remove infrastructure descriptor", e));
             }
         }
         if (failure != null) throw failure;

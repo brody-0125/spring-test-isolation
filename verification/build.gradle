@@ -41,6 +41,30 @@ tasks.register('initializationFailureTest', Test) {
     maxHeapSize = '384m'
     testLogging { events 'passed', 'failed'; showStandardStreams = true }
 }
+tasks.register('nestedGuardTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'guard' }
+    include '**/NestedGuardTest.class'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('contextHierarchyGuardTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'guard' }
+    include '**/ContextHierarchyGuardTest.class'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('lazyConnectionGuardTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'guard' }
+    include '**/LazyConnectionGuardTest.class'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
 tasks.register('connectionGuardTest', Test) {
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath

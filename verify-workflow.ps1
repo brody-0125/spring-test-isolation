@@ -5,8 +5,11 @@ try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     for ($run = 1; $run -le $Runs; $run++) {
         $log = "build/evidence/workflow-$Workers-run-$run.log"
+        $ErrorActionPreference = 'Continue'
         & ./gradlew.bat :verification:workflowTest "-Pworkers=$Workers" --rerun-tasks --console=plain *> $log
-        if ($LASTEXITCODE -ne 0) { throw "Workflow integration failed; inspect $log" }
+        $workflowCode = $LASTEXITCODE
+        $ErrorActionPreference = 'Stop'
+        if ($workflowCode -ne 0) { throw "Workflow integration failed; inspect $log" }
         $text = Get-Content -Raw $log
         if ($text -match 'Invocation of (close|destroy) method failed|Worker storage cleanup failed') { throw 'Lifecycle cleanup warning was swallowed by the framework' }
         foreach ($pattern in @('PTK infrastructure-start ', 'PTK infrastructure-closed')) {

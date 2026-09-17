@@ -1,5 +1,6 @@
 package io.github.brody0125.springtestisolation;
 
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.test.context.*;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -10,10 +11,29 @@ import javax.sql.DataSource;
 public final class BeforeBoundaryListener extends AbstractTestExecutionListener {
     @Override public int getOrder() { return 3001; }
     @Override public void prepareTestInstance(TestContext context) { WorkerStore.healthy(); }
-    @Override public void beforeTestMethod(TestContext context) { WorkerStore.healthy(); }
+    @Override public void beforeTestMethod(TestContext context) throws Exception {
+        WorkerStore.healthy();
+        if (context.hasApplicationContext()) verifyWorkerConnections(context);
+    }
+    static void rejectUnsupportedTestModel(Class<?> testClass) {
+        if (testClass.isMemberClass()) {
+            throw new IllegalStateException("@Nested test classes are not supported; use top-level classes with Smart Context ordering");
+        }
+        if (AnnotationUtils.findAnnotation(testClass, ContextHierarchy.class) != null) {
+            throw new IllegalStateException("@ContextHierarchy is not supported with worker isolation");
+        }
+    }
+    static void verifyWorkerConnections(TestContext test) throws Exception {
+        var ctx = (ConfigurableApplicationContext) test.getApplicationContext();
+        WorkerStore store = WorkerStore.get();
+        for (DataSource source : ctx.getBeansOfType(DataSource.class).values()) ConnectionVerifier.verify(source, store);
+        for (RedisConnectionFactory source : ctx.getBeansOfType(RedisConnectionFactory.class).values()) {
+            ConnectionVerifier.verify(source, store);
+        }
+    }
     @Override public void beforeTestClass(TestContext test) throws Exception {
         WorkerStore.healthy();
-        if (test.getTestClass().isMemberClass()) return;
+        rejectUnsupportedTestModel(test.getTestClass());
         synchronized (BoundaryState.class) {
             if (BoundaryState.running != null) throw new IllegalStateException("Concurrent classes inside one worker are forbidden");
             BoundaryState.running = test.getTestClass();
@@ -29,13 +49,7 @@ public final class BeforeBoundaryListener extends AbstractTestExecutionListener 
             BoundaryState.contexts.add(ctx);
             System.out.println("PTK active-contexts worker=" + System.getProperty("org.gradle.test.worker")
                     + " count=" + BoundaryState.contexts.stream().filter(ConfigurableApplicationContext::isActive).count());
-            WorkerStore store = WorkerStore.get();
-            for (DataSource source : ctx.getBeansOfType(DataSource.class).values()) {
-                ConnectionVerifier.verify(source, store);
-            }
-            for (RedisConnectionFactory source : ctx.getBeansOfType(RedisConnectionFactory.class).values()) {
-                ConnectionVerifier.verify(source, store);
-            }
+            verifyWorkerConnections(test);
             BoundaryCalls.invoke(BoundaryCalls.Phase.RESUME);
             System.out.println("PTK class-start worker=" + System.getProperty("org.gradle.test.worker") + " class=" + test.getTestClass().getName());
         } catch (Exception e) { WorkerStore.poison(e); throw e; }

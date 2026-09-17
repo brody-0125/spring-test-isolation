@@ -17,6 +17,7 @@ public final class IsolationCustomizerFactory implements ContextCustomizerFactor
             values.put("spring.datasource.url", store.jdbcUrl);
             values.put("spring.datasource.username", store.username());
             values.put("spring.datasource.password", store.password());
+            values.put("spring.flyway.enabled", "false");
             values.put("spring.flyway.url", store.jdbcUrl);
             values.put("spring.flyway.user", store.username());
             values.put("spring.flyway.password", store.password());
