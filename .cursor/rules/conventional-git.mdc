@@ -1,0 +1,15 @@
+---
+description: Branch and commit conventions for this repository (Conventional Commits)
+alwaysApply: true
+---
+
+# Git in spring-test-isolation
+
+When creating or renaming branches, drafting commit messages, committing, or amending commits:
+
+1. **Follow [CONTRIBUTING.md](../../CONTRIBUTING.md)** in this repository. It overrides generic Conventional Commits defaults and personal skills.
+2. Match recent `git log` on the branch when it clearly follows CONTRIBUTING.
+3. Keep existing git safety behavior: commit only when the user asks, no push unless asked, no destructive git commands unless requested.
+
+Default branch shape: `{type}/{short-kebab-description}`.  
+Default commit shape: `type(scope): imperative description` (no space before the colon).
