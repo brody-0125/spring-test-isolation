@@ -6,5 +6,5 @@ import java.util.Properties;
 public interface JdbcInfrastructureProvider {
     String id();
 
-    StartedInfrastructure start() throws Exception;
+    StartedInfrastructure start(InfrastructureConfiguration configuration) throws Exception;
 }

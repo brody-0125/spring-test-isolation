@@ -8,8 +8,8 @@ public final class PostgreSqlJdbcInfrastructureProvider implements JdbcInfrastru
 
     @Override public String id() { return ID; }
 
-    @Override public StartedInfrastructure start() {
-        PostgreSQLContainer postgres = new PostgreSQLContainer(InfrastructureVersions.POSTGRES_IMAGE);
+    @Override public StartedInfrastructure start(InfrastructureConfiguration configuration) {
+        PostgreSQLContainer postgres = new PostgreSQLContainer(configuration.postgresImage());
         postgres.start();
         return new StartedInfrastructure(postgres, postgres.getContainerId(), descriptor -> {
             descriptor.setProperty("jdbc", postgres.getJdbcUrl());

@@ -4,5 +4,5 @@ package io.github.brody0125.springtestisolation.gradle.infrastructure;
 public interface CacheInfrastructureProvider {
     String id();
 
-    StartedInfrastructure start() throws Exception;
+    StartedInfrastructure start(InfrastructureConfiguration configuration) throws Exception;
 }

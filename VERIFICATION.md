@@ -119,6 +119,17 @@ isolatedTests {
 }
 ```
 
+Optional consumer overrides (unset = plugin defaults from `dependency-versions.gradle` / `InfrastructureVersions`):
+
+| DSL property | Applies when | Default |
+|--------------|--------------|---------|
+| `postgresImage` | `jdbcBackend = 'postgresql'` | `postgres:16.9-alpine` |
+| `redisImage` | `cacheBackend = 'redis'` | `redis:7.4.4-alpine` |
+| `redisLogicalDatabases` | `cacheBackend = 'redis'` | `256` |
+| `maxCacheSlots` | `cacheBackend = 'redis'` | `255` |
+
+Changing images or Redis capacity is **not** part of the verified matrix unless you record new evidence. Overrides must keep `maxCacheSlots ≤ redisLogicalDatabases` and `workers ≤ maxCacheSlots`.
+
 Additional engines register by implementing `JdbcWorkerBackend` / `CacheWorkerBackend` in the runtime module and `JdbcInfrastructureProvider` / `CacheInfrastructureProvider` in the plugin module, then wiring ids into the registries.
 
 One Gradle build uses a single shared Build Service and one `jdbc.backend` / `cache.backend` pair; the first registered plugin configuration wins if subprojects disagree.

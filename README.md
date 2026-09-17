@@ -76,8 +76,15 @@ isolatedTests {
     workers = 2
     jdbcBackend = 'postgresql' // default
     cacheBackend = 'redis'     // default
+    // Optional (defaults match VERIFICATION.md):
+    // postgresImage = 'postgres:16.9-alpine'
+    // redisImage = 'redis:7.4.4-alpine'
+    // redisLogicalDatabases = 256
+    // maxCacheSlots = 255
 }
 ```
+
+Container image overrides are optional; changing them moves you outside the verified stack until you re-run the verification scripts and update [VERIFICATION.md](VERIFICATION.md).
 
 Use `verification/build.gradle` in this repository as a full working example.
 

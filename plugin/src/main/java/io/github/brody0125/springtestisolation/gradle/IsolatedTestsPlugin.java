@@ -5,6 +5,7 @@ import org.gradle.api.provider.*;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.process.CommandLineArgumentProvider;
+import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureOverrides;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureProviders;
 import java.util.List;
 
@@ -31,6 +32,10 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
         public abstract Property<Integer> getWorkers();
         public abstract Property<String> getJdbcBackend();
         public abstract Property<String> getCacheBackend();
+        public abstract Property<String> getPostgresImage();
+        public abstract Property<String> getRedisImage();
+        public abstract Property<Integer> getRedisLogicalDatabases();
+        public abstract Property<Integer> getMaxCacheSlots();
     }
     public static class ConnectionArguments implements CommandLineArgumentProvider {
         private final Provider<Containers> service;
@@ -49,6 +54,10 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
                 .registerIfAbsent("spring-test-isolation-containers", Containers.class, spec -> {
                     spec.getParameters().getJdbcBackend().set(options.getJdbcBackend());
                     spec.getParameters().getCacheBackend().set(options.getCacheBackend());
+                    spec.getParameters().getPostgresImage().set(options.getPostgresImage());
+                    spec.getParameters().getRedisImage().set(options.getRedisImage());
+                    spec.getParameters().getRedisLogicalDatabases().set(options.getRedisLogicalDatabases());
+                    spec.getParameters().getMaxCacheSlots().set(options.getMaxCacheSlots());
                 });
         project.getTasks().withType(Test.class).configureEach(test -> {
             test.useJUnitPlatform();
@@ -68,6 +77,7 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
             try {
                 InfrastructureProviders.jdbc(options.getJdbcBackend().get());
                 InfrastructureProviders.cache(options.getCacheBackend().get());
+                InfrastructureOverrides.validate(options);
             } catch (IllegalArgumentException e) {
                 throw new GradleException(e.getMessage(), e);
             }
