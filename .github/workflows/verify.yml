@@ -35,4 +35,6 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - name: Docker integration (verify.ps1)
-        run: pwsh ./verify.ps1 -Workers 2
+        run: |
+          chmod +x gradlew
+          pwsh ./verify.ps1 -Workers 2

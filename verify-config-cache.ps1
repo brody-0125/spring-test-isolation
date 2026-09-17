@@ -1,11 +1,13 @@
 param([int]$Workers = 2)
 $ErrorActionPreference = 'Stop'
 Push-Location $PSScriptRoot
+. (Join-Path $PSScriptRoot 'scripts/verify-common.ps1')
+$gradlew = Resolve-GradleWrapper -Root $PSScriptRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     $log = "build/evidence/config-cache-$Workers.log"
     $ErrorActionPreference = 'Continue'
-    & ./gradlew.bat :runtime:test :verification:test "-Pworkers=$Workers" --configuration-cache --rerun-tasks --console=plain *> $log
+    & $gradlew :runtime:test :verification:test "-Pworkers=$Workers" --configuration-cache --rerun-tasks --console=plain *> $log
     $code = $LASTEXITCODE
     $ErrorActionPreference = 'Stop'
     if ($code -ne 0) { throw "Configuration cache build failed; inspect $log" }

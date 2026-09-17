@@ -1,12 +1,14 @@
 param([int]$Workers = 2, [switch]$Negative)
 $ErrorActionPreference = 'Stop'
 Push-Location $PSScriptRoot
+. (Join-Path $PSScriptRoot 'scripts/verify-common.ps1')
+$gradlew = Resolve-GradleWrapper -Root $PSScriptRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     $task = @(if ($Negative) { ':verification:cleanupFailureTest' } else { ':runtime:test', ':verification:test' })
     $log = "build/evidence/workers-$Workers-negative-$Negative.log"
     $ErrorActionPreference = 'Continue'
-    & ./gradlew.bat @task "-Pworkers=$Workers" --rerun-tasks --console=plain *> $log
+    & $gradlew @task "-Pworkers=$Workers" --rerun-tasks --console=plain *> $log
     $code = $LASTEXITCODE
     $ErrorActionPreference = 'Stop'
     $text = Get-Content -Raw $log
