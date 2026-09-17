@@ -8,6 +8,7 @@ file("${rootDir}/../gradle.properties").withInputStream { rootGradleProps.load(i
 group = rootGradleProps.getProperty('group', 'io.github.brody-0125')
 version = rootGradleProps.getProperty('version', '1.0.0')
 
+apply from: file("${rootDir}/../gradle/dependency-versions.gradle")
 apply from: file("${rootDir}/../gradle/publish-pom.gradle")
 
 repositories { mavenCentral() }
@@ -16,10 +17,37 @@ java {
     withSourcesJar()
 }
 
+def infrastructureVersionsDir = layout.buildDirectory.dir('generated/sources/infrastructureVersions')
+tasks.register('generateInfrastructureVersions') {
+    def outFile = infrastructureVersionsDir.map {
+        it.file('io/github/brody0125/springtestisolation/gradle/infrastructure/InfrastructureVersions.java')
+    }
+    outputs.file(outFile)
+    doLast {
+        def file = outFile.get().asFile
+        file.parentFile.mkdirs()
+        file.text = """package io.github.brody0125.springtestisolation.gradle.infrastructure;
+
+/** Generated from gradle/dependency-versions.gradle — do not edit. */
+public final class InfrastructureVersions {
+    private InfrastructureVersions() {}
+    public static final String POSTGRES_IMAGE = "${containerImages.postgres}";
+    public static final String REDIS_IMAGE = "${containerImages.redis}";
+    public static final String REDIS_LOGICAL_DATABASES = "${cacheInfrastructure.redisLogicalDatabases}";
+    public static final String MAX_WORKER_SLOTS = "${cacheInfrastructure.maxWorkerSlots}";
+}
+"""
+    }
+}
+sourceSets.main.java.srcDir infrastructureVersionsDir
+tasks.named('compileJava') { dependsOn 'generateInfrastructureVersions' }
+
 dependencies {
-    implementation 'org.testcontainers:testcontainers-postgresql:2.0.5'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.2'
+    implementation platform("org.testcontainers:testcontainers-bom:${versions.testcontainers}")
+    implementation 'org.testcontainers:testcontainers'
+    implementation 'org.testcontainers:testcontainers-postgresql'
+    testImplementation "org.junit.jupiter:junit-jupiter:${versions.junitJupiter}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
 }
 test { useJUnitPlatform() }
 

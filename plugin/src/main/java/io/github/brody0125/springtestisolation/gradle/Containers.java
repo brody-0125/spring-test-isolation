@@ -1,16 +1,24 @@
 package io.github.brody0125.springtestisolation.gradle;
 
+import io.github.brody0125.springtestisolation.gradle.infrastructure.CacheInfrastructureProvider;
+import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureProviders;
+import io.github.brody0125.springtestisolation.gradle.infrastructure.JdbcInfrastructureProvider;
+import io.github.brody0125.springtestisolation.gradle.infrastructure.StartedInfrastructure;
+import org.gradle.api.provider.Property;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.postgresql.PostgreSQLContainer;
 import java.nio.file.*;
 import java.util.*;
 
 /** Build-owned resources. No Spring context owns these containers. */
-public abstract class Containers implements BuildService<BuildServiceParameters.None>, AutoCloseable {
-    private PostgreSQLContainer postgres;
-    private GenericContainer<?> redis;
+public abstract class Containers implements BuildService<Containers.Parameters>, AutoCloseable {
+    public interface Parameters extends BuildServiceParameters {
+        Property<String> getJdbcBackend();
+        Property<String> getCacheBackend();
+    }
+
+    private StartedInfrastructure jdbc;
+    private StartedInfrastructure cache;
     private Path descriptor;
     private boolean closed;
 
@@ -20,22 +28,21 @@ public abstract class Containers implements BuildService<BuildServiceParameters.
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(Containers.class.getClassLoader());
         try {
-            postgres = new PostgreSQLContainer("postgres:16.9-alpine");
-            redis = new GenericContainer<>("redis:7.4.4-alpine").withExposedPorts(6379)
-                    .withCommand("redis-server", "--databases", "256");
-            postgres.start();
-            redis.start();
+            String jdbcId = getParameters().getJdbcBackend().getOrElse("postgresql");
+            String cacheId = getParameters().getCacheBackend().getOrElse("redis");
+            JdbcInfrastructureProvider jdbcProvider = InfrastructureProviders.jdbc(jdbcId);
+            CacheInfrastructureProvider cacheProvider = InfrastructureProviders.cache(cacheId);
+            jdbc = jdbcProvider.start();
+            cache = cacheProvider.start();
             Path directory = Files.createTempDirectory("spring-test-isolation-");
             Properties p = new Properties();
             p.setProperty("run", UUID.randomUUID().toString());
-            System.out.println("PTK infrastructure-start postgres=" + postgres.getContainerId() + " redis=" + redis.getContainerId()
-                    + " run=" + p.getProperty("run"));
-            p.setProperty("jdbc", postgres.getJdbcUrl());
-            p.setProperty("user", postgres.getUsername());
-            p.setProperty("password", postgres.getPassword());
-            p.setProperty("redis.host", redis.getHost());
-            p.setProperty("redis.port", redis.getMappedPort(6379).toString());
-            p.setProperty("slots", "255");
+            p.setProperty("jdbc.backend", jdbcId);
+            p.setProperty("cache.backend", cacheId);
+            jdbc.publish(p);
+            cache.publish(p);
+            System.out.println("PTK infrastructure-start jdbc=" + jdbc.containerId() + " cache=" + cache.containerId()
+                    + " run=" + p.getProperty("run") + " jdbc.backend=" + jdbcId + " cache.backend=" + cacheId);
             Path file = directory.resolve("connection.properties");
             descriptor = file;
             try (var out = Files.newOutputStream(file)) { p.store(out, "Ephemeral test infrastructure"); }
@@ -57,8 +64,8 @@ public abstract class Containers implements BuildService<BuildServiceParameters.
         if (closed) return;
         closed = true;
         RuntimeException failure = null;
-        try { if (redis != null) redis.stop(); } catch (RuntimeException e) { failure = e; }
-        try { if (postgres != null) postgres.stop(); } catch (RuntimeException e) { failure = combineCloseFailures(failure, e); }
+        try { if (cache != null) cache.stop(); } catch (Exception e) { failure = new RuntimeException(e); }
+        try { if (jdbc != null) jdbc.stop(); } catch (Exception e) { failure = combineCloseFailures(failure, new RuntimeException(e)); }
         if (descriptor != null) {
             try (var paths = Files.walk(descriptor.getParent())) {
                 for (Path p : paths.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(p);

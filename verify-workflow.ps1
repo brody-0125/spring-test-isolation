@@ -44,7 +44,7 @@ try {
             $count += [int]$report.testsuite.tests
         }
         if ($count -ne 4) { throw "Expected four successful tests, got $count" }
-        $infra = [regex]::Match($text, 'PTK infrastructure-start postgres=(\w+) redis=(\w+)')
+        $infra = [regex]::Match($text, 'PTK infrastructure-start jdbc=(\w+) cache=(\w+)')
         $remaining = @(& docker ps -aq --no-trunc)
         if ($LASTEXITCODE -ne 0) { throw 'Cannot verify container removal' }
         if ($remaining -contains $infra.Groups[1].Value -or $remaining -contains $infra.Groups[2].Value) { throw 'Build containers leaked' }

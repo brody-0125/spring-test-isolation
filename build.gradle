@@ -1,3 +1,5 @@
+apply from: 'gradle/dependency-versions.gradle'
+
 allprojects {
     group = findProperty('group') ?: 'io.github.brody-0125'
     version = findProperty('version') ?: '1.0.0'

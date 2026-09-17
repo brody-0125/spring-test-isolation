@@ -72,7 +72,11 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-data-redis'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
-isolatedTests { workers = 2 }
+isolatedTests {
+    workers = 2
+    jdbcBackend = 'postgresql' // default
+    cacheBackend = 'redis'     // default
+}
 ```
 
 Use `verification/build.gradle` in this repository as a full working example.

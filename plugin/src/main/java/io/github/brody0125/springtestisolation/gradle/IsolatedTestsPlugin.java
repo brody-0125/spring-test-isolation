@@ -28,6 +28,8 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
     }
     public abstract static class Options {
         public abstract Property<Integer> getWorkers();
+        public abstract Property<String> getJdbcBackend();
+        public abstract Property<String> getCacheBackend();
     }
     public static class ConnectionArguments implements CommandLineArgumentProvider {
         private final Provider<Containers> service;
@@ -40,8 +42,13 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
     @Override public void apply(Project project) {
         Options options = project.getExtensions().create("isolatedTests", Options.class);
         options.getWorkers().convention(2);
+        options.getJdbcBackend().convention("postgresql");
+        options.getCacheBackend().convention("redis");
         Provider<Containers> service = project.getGradle().getSharedServices()
-                .registerIfAbsent("spring-test-isolation-containers", Containers.class, spec -> {});
+                .registerIfAbsent("spring-test-isolation-containers", Containers.class, spec -> {
+                    spec.getParameters().getJdbcBackend().set(options.getJdbcBackend());
+                    spec.getParameters().getCacheBackend().set(options.getCacheBackend());
+                });
         project.getTasks().withType(Test.class).configureEach(test -> {
             test.useJUnitPlatform();
             test.systemProperty("springtestisolation.task", test.getPath());
