@@ -1,15 +1,31 @@
-plugins { id 'java-gradle-plugin'; id 'maven-publish' }
-group = 'io.github.brody-0125'
-version = '0.1.0-SNAPSHOT'
+plugins {
+    id 'java-gradle-plugin'
+    id 'com.vanniktech.maven.publish'
+}
+
+def rootGradleProps = new Properties()
+file("${rootDir}/../gradle.properties").withInputStream { rootGradleProps.load(it) }
+group = rootGradleProps.getProperty('group', 'io.github.brody-0125')
+version = rootGradleProps.getProperty('version', '1.0.0')
+
+apply from: file("${rootDir}/../gradle/publish-pom.gradle")
+
 repositories { mavenCentral() }
-java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+    withSourcesJar()
+}
+
 dependencies {
     implementation 'org.testcontainers:testcontainers-postgresql:2.0.5'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.2'
 }
 test { useJUnitPlatform() }
+
 gradlePlugin {
+    website = 'https://github.com/brody-0125/spring-test-isolation'
+    vcsUrl = 'https://github.com/brody-0125/spring-test-isolation'
     plugins {
         isolatedTests {
             id = 'io.github.brody-0125.spring-test-isolation'
@@ -17,5 +33,22 @@ gradlePlugin {
             displayName = 'Spring Test Isolation'
             description = 'Run Spring tests across Gradle workers with shared containers and isolated worker storage.'
         }
+    }
+}
+
+ext.publishArtifactTitle = 'spring-test-isolation-gradle-plugin'
+def signingConfigured = project.hasProperty('signing.keyId')
+        || project.hasProperty('signingInMemoryKey')
+        || project.hasProperty('signing.secretKeyRingFile')
+
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, true)
+    if (signingConfigured) {
+        signAllPublications()
+    }
+    coordinates(project.group.toString(), 'spring-test-isolation-gradle-plugin', project.version.toString())
+    pom {
+        name = 'spring-test-isolation-gradle-plugin'
+        springTestIsolationPom(delegate)
     }
 }

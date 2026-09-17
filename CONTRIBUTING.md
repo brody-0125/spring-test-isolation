@@ -2,6 +2,8 @@
 
 Thank you for contributing to Spring Test Isolation. This document defines how we name branches and write commits. It follows [Conventional Commits v1.0.0](https://www.conventionalcommits.org/ko/v1.0.0/) and overrides generic agent defaults for this repository.
 
+Release versioning and tagging are described in [RELEASING.md](RELEASING.md). User-facing release notes belong in [CHANGELOG.md](CHANGELOG.md).
+
 ## Before you open a PR
 
 1. Read [CONTRACT.md](CONTRACT.md) and [VERIFICATION.md](VERIFICATION.md) for runtime guarantees and evidence requirements.
