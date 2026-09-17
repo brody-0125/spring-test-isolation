@@ -5,6 +5,7 @@ import org.gradle.api.provider.*;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.process.CommandLineArgumentProvider;
+import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureProviders;
 import java.util.List;
 
 public class IsolatedTestsPlugin implements Plugin<Project> {
@@ -28,6 +29,8 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
     }
     public abstract static class Options {
         public abstract Property<Integer> getWorkers();
+        public abstract Property<String> getJdbcBackend();
+        public abstract Property<String> getCacheBackend();
     }
     public static class ConnectionArguments implements CommandLineArgumentProvider {
         private final Provider<Containers> service;
@@ -40,8 +43,13 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
     @Override public void apply(Project project) {
         Options options = project.getExtensions().create("isolatedTests", Options.class);
         options.getWorkers().convention(2);
+        options.getJdbcBackend().convention("postgresql");
+        options.getCacheBackend().convention("redis");
         Provider<Containers> service = project.getGradle().getSharedServices()
-                .registerIfAbsent("spring-test-isolation-containers", Containers.class, spec -> {});
+                .registerIfAbsent("spring-test-isolation-containers", Containers.class, spec -> {
+                    spec.getParameters().getJdbcBackend().set(options.getJdbcBackend());
+                    spec.getParameters().getCacheBackend().set(options.getCacheBackend());
+                });
         project.getTasks().withType(Test.class).configureEach(test -> {
             test.useJUnitPlatform();
             test.systemProperty("springtestisolation.task", test.getPath());
@@ -57,6 +65,12 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
         project.afterEvaluate(p -> {
             int workers = options.getWorkers().get();
             if (workers < 1 || workers > 255) throw new GradleException("workers must be between 1 and 255");
+            try {
+                InfrastructureProviders.jdbc(options.getJdbcBackend().get());
+                InfrastructureProviders.cache(options.getCacheBackend().get());
+            } catch (IllegalArgumentException e) {
+                throw new GradleException(e.getMessage(), e);
+            }
             p.getTasks().withType(Test.class).configureEach(test -> test.setMaxParallelForks(workers));
         });
     }

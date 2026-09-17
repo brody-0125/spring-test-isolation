@@ -1,10 +1,12 @@
 $ErrorActionPreference = 'Stop'
 Push-Location $PSScriptRoot
+. (Join-Path $PSScriptRoot 'scripts/verify-common.ps1')
+$gradlew = Resolve-GradleWrapper -Root $PSScriptRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     $log = 'build/evidence/multimodule.log'
     $ErrorActionPreference = 'Continue'
-    & ./gradlew.bat :verification:test :verification-peer:test --parallel --max-workers=4 --rerun-tasks --console=plain *> $log
+    & $gradlew :verification:test :verification-peer:test --parallel --max-workers=4 --rerun-tasks --console=plain *> $log
     $multimoduleCode = $LASTEXITCODE
     $ErrorActionPreference = 'Stop'
     if ($multimoduleCode -ne 0) { throw "Multimodule tests failed; inspect $log" }

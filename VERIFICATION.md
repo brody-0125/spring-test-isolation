@@ -93,6 +93,36 @@ We sampled Windows process memory at intervals of about 250 ms. Aggregate Workin
 
 The files `workers-*-memory.json` retain the historical memory samples. The expanded verification replaced `workers-*-negative-False.log` and `workers-*-events.json`; those files now describe different runs.
 
+## Shared infrastructure descriptor
+
+Library, Testcontainers, and container image versions are defined in [gradle/dependency-versions.gradle](gradle/dependency-versions.gradle). The plugin SPI reads Docker image tags from `InfrastructureVersions` (generated at compile time from that file). Runtime and verification modules resolve Maven coordinates from the same `versions` map.
+
+The Gradle Build Service writes a `connection.properties` file per build and passes its path to workers as `-Dspringtestisolation.descriptor=…`. The runtime reads backend ids and connection endpoints from this file; workers never share slot files within a build.
+
+| Property | Meaning |
+|----------|---------|
+| `jdbc.backend` | JDBC isolation implementation (`postgresql` default). Registered in `JdbcWorkerBackends` / `JdbcInfrastructureProvider`. |
+| `cache.backend` | Cache isolation implementation (`redis` default). Registered in `CacheWorkerBackends` / `CacheInfrastructureProvider`. |
+| `jdbc` | Admin JDBC URL for creating and dropping per-worker databases (PostgreSQL today). |
+| `user`, `password` | Credentials for admin and worker JDBC connections. |
+| `redis.host`, `redis.port` | Shared cache server endpoint. |
+| `slots` | Maximum concurrent cache logical databases (file-backed slot reservation under the descriptor directory). |
+| `run` | Build-scoped run id (diagnostics). |
+
+Gradle extension (defaults preserve 1.0.0 behavior):
+
+```groovy
+isolatedTests {
+    workers = 2
+    jdbcBackend = 'postgresql'
+    cacheBackend = 'redis'
+}
+```
+
+Additional engines register by implementing `JdbcWorkerBackend` / `CacheWorkerBackend` in the runtime module and `JdbcInfrastructureProvider` / `CacheInfrastructureProvider` in the plugin module, then wiring ids into the registries.
+
+One Gradle build uses a single shared Build Service and one `jdbc.backend` / `cache.backend` pair; the first registered plugin configuration wins if subprojects disagree.
+
 ## Remaining limitations
 
 - We tested the version combination above under the ClassBoundary and storage access contracts. Test other versions, operating systems, and large applications before adopting them.

@@ -1,5 +1,7 @@
 $ErrorActionPreference = 'Stop'
 Push-Location $PSScriptRoot
+. (Join-Path $PSScriptRoot 'scripts/verify-common.ps1')
+$gradlew = Resolve-GradleWrapper -Root $PSScriptRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     & ./verify.ps1 -Workers 1 -Negative
@@ -15,7 +17,7 @@ try {
     )) {
         $log = "build/evidence/$($case.Task).log"
         $ErrorActionPreference = 'Continue'
-        & ./gradlew.bat ":verification:$($case.Task)" -Pworkers=1 --rerun-tasks --console=plain *> $log
+        & $gradlew ":verification:$($case.Task)" -Pworkers=1 --rerun-tasks --console=plain *> $log
         $code = $LASTEXITCODE
         $ErrorActionPreference = 'Stop'
         $text = Get-Content -Raw $log
@@ -24,7 +26,7 @@ try {
         Write-Output "PASS: $($case.Task) rejected before forbidden body"
     }
     $ErrorActionPreference = 'Continue'
-    & ./gradlew.bat :verification:invalidSettingsTest --console=plain *> 'build/evidence/invalidSettingsTest.log'
+    & $gradlew :verification:invalidSettingsTest --console=plain *> 'build/evidence/invalidSettingsTest.log'
     $code = $LASTEXITCODE
     $ErrorActionPreference = 'Stop'
     $text = Get-Content -Raw 'build/evidence/invalidSettingsTest.log'

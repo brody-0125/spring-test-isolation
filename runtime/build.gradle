@@ -24,15 +24,15 @@ mavenPublishing {
 }
 
 dependencies {
-    api 'org.springframework:spring-test:6.2.8'
-    api 'org.springframework:spring-context:6.2.8'
-    implementation 'org.springframework:spring-jdbc:6.2.8'
-    implementation 'org.springframework.data:spring-data-redis:3.5.1'
-    api 'com.github.seregamorph:spring-test-smart-context:1.0'
-    implementation 'org.postgresql:postgresql:42.7.7'
-    api 'redis.clients:jedis:5.2.0'
-    implementation 'org.junit.platform:junit-platform-launcher:1.12.2'
-    implementation 'org.junit.jupiter:junit-jupiter-api:5.12.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.2'
+    api "org.springframework:spring-test:${versions.springFramework}"
+    api "org.springframework:spring-context:${versions.springFramework}"
+    implementation "org.springframework:spring-jdbc:${versions.springFramework}"
+    implementation "org.springframework.data:spring-data-redis:${versions.springDataRedis}"
+    api "com.github.seregamorph:spring-test-smart-context:${versions.smartContext}"
+    implementation "org.postgresql:postgresql:${versions.postgresqlJdbc}"
+    api "redis.clients:jedis:${versions.jedis}"
+    implementation "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
+    implementation "org.junit.jupiter:junit-jupiter-api:${versions.junitJupiter}"
+    testImplementation "org.junit.jupiter:junit-jupiter:${versions.junitJupiter}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
 }

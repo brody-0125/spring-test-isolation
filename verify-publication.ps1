@@ -1,14 +1,16 @@
 $ErrorActionPreference = 'Stop'
 Push-Location $PSScriptRoot
+. (Join-Path $PSScriptRoot 'scripts/verify-common.ps1')
+$gradlew = Resolve-GradleWrapper -Root $PSScriptRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     $log = 'build/evidence/publication-verify.log'
     $ErrorActionPreference = 'Continue'
-    & ./gradlew.bat :runtime:clean :runtime:publishToMavenLocal --rerun-tasks --console=plain *> $log
+    & $gradlew :runtime:clean :runtime:publishToMavenLocal --rerun-tasks --console=plain *> $log
     $code = $LASTEXITCODE
     if ($code -ne 0) { throw "Runtime publication failed; inspect $log" }
     $ErrorActionPreference = 'Continue'
-    & ./gradlew.bat -p plugin clean publishToMavenLocal validatePlugins --rerun-tasks --console=plain *> $log
+    & $gradlew -p plugin clean publishToMavenLocal validatePlugins --rerun-tasks --console=plain *> $log
     $code = $LASTEXITCODE
     $ErrorActionPreference = 'Stop'
     if ($code -ne 0) { throw "Plugin publication failed; inspect $log" }

@@ -1,13 +1,13 @@
 dependencies {
     testImplementation project(':runtime')
-    testImplementation 'redis.clients:jedis:5.2.0'
-    testImplementation platform('org.springframework.boot:spring-boot-dependencies:3.5.1')
+    testImplementation "redis.clients:jedis:${versions.jedis}"
+    testImplementation platform("org.springframework.boot:spring-boot-dependencies:${versions.springBoot}")
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-redis'
     testImplementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.flywaydb:flyway-core:10.22.0'
-    testImplementation 'org.flywaydb:flyway-database-postgresql:10.22.0'
-    testRuntimeOnly 'org.postgresql:postgresql'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "org.flywaydb:flyway-core:${versions.flyway}"
+    testImplementation "org.flywaydb:flyway-database-postgresql:${versions.flyway}"
+    testRuntimeOnly "org.postgresql:postgresql:${versions.postgresqlJdbc}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
 }
