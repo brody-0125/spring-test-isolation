@@ -35,18 +35,13 @@ public final class BeforeBoundaryListener extends AbstractTestExecutionListener 
         }
         for (Annotation annotation : testClass.getDeclaredAnnotations()) {
             if (isContextAnnotation(annotation.annotationType())) return true;
-            for (Annotation meta : annotation.annotationType().getDeclaredAnnotations()) {
-                if (isContextAnnotation(meta.annotationType())) return true;
-            }
         }
         return false;
     }
     private static boolean isContextAnnotation(Class<?> type) {
-        String name = type.getName();
-        return name.equals("org.springframework.test.context.ContextConfiguration")
-                || name.equals("org.springframework.test.context.ContextHierarchy")
-                || name.equals("org.springframework.test.context.BootstrapWith")
-                || name.equals("org.springframework.boot.test.context.SpringBootTest");
+        return type == ContextConfiguration.class
+                || type == ContextHierarchy.class
+                || type.getName().equals("org.springframework.boot.test.context.SpringBootTest");
     }
     private static Class<?> rootClass(Class<?> testClass) {
         Class<?> type = testClass;
