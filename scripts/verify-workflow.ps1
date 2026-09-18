@@ -1,8 +1,9 @@
 param([ValidateSet(1,2,4)][int]$Workers = 2, [ValidateRange(1,20)][int]$Runs = 1)
 $ErrorActionPreference = 'Stop'
-Push-Location $PSScriptRoot
-. (Join-Path $PSScriptRoot 'scripts/verify-common.ps1')
-$gradlew = Resolve-GradleWrapper -Root $PSScriptRoot
+. (Join-Path $PSScriptRoot 'verify-common.ps1')
+$RepoRoot = Get-RepoRoot
+Push-Location $RepoRoot
+$gradlew = Resolve-GradleWrapper -Root $RepoRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     for ($run = 1; $run -le $Runs; $run++) {

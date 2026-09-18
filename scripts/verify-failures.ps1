@@ -1,10 +1,11 @@
 $ErrorActionPreference = 'Stop'
-Push-Location $PSScriptRoot
-. (Join-Path $PSScriptRoot 'scripts/verify-common.ps1')
-$gradlew = Resolve-GradleWrapper -Root $PSScriptRoot
+. (Join-Path $PSScriptRoot 'verify-common.ps1')
+$RepoRoot = Get-RepoRoot
+Push-Location $RepoRoot
+$gradlew = Resolve-GradleWrapper -Root $RepoRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
-    & ./verify.ps1 -Workers 1 -Negative
+    & (Join-Path $PSScriptRoot 'verify.ps1') -Workers 1 -Negative
     foreach ($case in @(
         @{ Task='boundaryTimeoutTest'; Required='Boundary hook timed out: QUIESCE'; Forbidden='NEGATIVE_BODY CleanupBTest' },
         @{ Task='guardFailureTest'; Required='@Execution\(CONCURRENT\) is incompatible'; Forbidden='FORBIDDEN_GUARD_BODY_EXECUTED' },

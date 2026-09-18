@@ -14,9 +14,15 @@ class BackendRegistryTest {
         assertEquals(PostgreSqlJdbcWorkerBackend.ID, JdbcWorkerBackends.resolve(descriptor).id());
         assertEquals(RedisCacheWorkerBackend.ID, CacheWorkerBackends.resolve(descriptor).id());
     }
-    @Test void unknownJdbcBackendFailsFast() {
+    @Test void mysqlJdbcBackendResolves() {
         var descriptor = new Properties();
         descriptor.setProperty(InfrastructureDescriptor.JDBC_BACKEND, "mysql");
+        assertEquals("mysql", JdbcWorkerBackends.resolve(descriptor).id());
+    }
+
+    @Test void unknownJdbcBackendFailsFast() {
+        var descriptor = new Properties();
+        descriptor.setProperty(InfrastructureDescriptor.JDBC_BACKEND, "oracle");
         assertThrows(IllegalStateException.class, () -> JdbcWorkerBackends.resolve(descriptor));
     }
 }

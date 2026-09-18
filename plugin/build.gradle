@@ -32,6 +32,7 @@ tasks.register('generateInfrastructureVersions') {
 public final class InfrastructureVersions {
     private InfrastructureVersions() {}
     public static final String POSTGRES_IMAGE = "${containerImages.postgres}";
+    public static final String MYSQL_IMAGE = "${containerImages.mysql}";
     public static final String REDIS_IMAGE = "${containerImages.redis}";
     public static final String REDIS_LOGICAL_DATABASES = "${cacheInfrastructure.redisLogicalDatabases}";
     public static final String MAX_WORKER_SLOTS = "${cacheInfrastructure.maxWorkerSlots}";
@@ -46,6 +47,8 @@ dependencies {
     implementation platform("org.testcontainers:testcontainers-bom:${versions.testcontainers}")
     implementation 'org.testcontainers:testcontainers'
     implementation 'org.testcontainers:testcontainers-postgresql'
+    implementation 'org.testcontainers:testcontainers-mysql'
+    implementation "com.mysql:mysql-connector-j:${versions.mysqlJdbc}"
     testImplementation "org.junit.jupiter:junit-jupiter:${versions.junitJupiter}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
 }

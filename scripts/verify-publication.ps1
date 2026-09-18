@@ -1,7 +1,8 @@
 $ErrorActionPreference = 'Stop'
-Push-Location $PSScriptRoot
-. (Join-Path $PSScriptRoot 'scripts/verify-common.ps1')
-$gradlew = Resolve-GradleWrapper -Root $PSScriptRoot
+. (Join-Path $PSScriptRoot 'verify-common.ps1')
+$RepoRoot = Get-RepoRoot
+Push-Location $RepoRoot
+$gradlew = Resolve-GradleWrapper -Root $RepoRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     $log = 'build/evidence/publication-verify.log'

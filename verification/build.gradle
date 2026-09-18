@@ -1,12 +1,22 @@
 plugins { id 'io.github.brody-0125.spring-test-isolation' }
 tasks.withType(Test).configureEach { testLogging { exceptionFormat = 'full' } }
 apply from: 'dependencies.gradle'
+def jdbcBackendName = findProperty('jdbcBackend') ?: 'postgresql'
+def jdbcBackendProperty = providers.gradleProperty('jdbcBackend').orElse('postgresql')
 isolatedTests {
     workers = providers.gradleProperty('workers').map { it.toInteger() }.orElse(2)
-    postgresImage = rootProject.containerImages.postgres
+    jdbcBackend = jdbcBackendName
+    if (jdbcBackendName == 'mysql') {
+        mysqlImage = rootProject.containerImages.mysql
+    } else {
+        postgresImage = rootProject.containerImages.postgres
+    }
     redisImage = rootProject.containerImages.redis
     redisLogicalDatabases = rootProject.cacheInfrastructure.redisLogicalDatabases.toInteger()
     maxCacheSlots = rootProject.cacheInfrastructure.maxWorkerSlots.toInteger()
+}
+tasks.withType(Test).configureEach {
+    systemProperty 'jdbc.backend', jdbcBackendProperty
 }
 test {
     useJUnitPlatform { excludeTags 'negative', 'guard' }

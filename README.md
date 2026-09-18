@@ -78,6 +78,7 @@ isolatedTests {
     cacheBackend = 'redis'     // default
     // Optional (defaults match VERIFICATION.md):
     // postgresImage = 'postgres:16.9-alpine'
+    // mysqlImage = 'mysql:8.4.5'   // when jdbcBackend = 'mysql'
     // redisImage = 'redis:7.4.4-alpine'
     // redisLogicalDatabases = 256
     // maxCacheSlots = 255
@@ -110,17 +111,25 @@ Keep `@DirtiesContext` when hooks cannot undo context mutations.
 ./gradlew :runtime:test :verification:test
 ```
 
-**Evidence scripts (Windows, Docker required):**
+**Evidence scripts (Docker required):** same checks in `scripts/` as PowerShell (`.ps1`) or Bash (`.sh`). On Linux or macOS, run `chmod +x scripts/*.sh` once if needed.
 
-```powershell
-./verify.ps1 -Workers 2
-./verify-failures.ps1
-./verify-multimodule.ps1
-./verify-workflow.ps1 -Workers 2 -Runs 3
-./verify-config-cache.ps1 -Workers 2
+```bash
+./scripts/verify.sh -Workers 2
+./scripts/verify-failures.sh
+./scripts/verify-multimodule.sh
+./scripts/verify-workflow.sh -Workers 2 -Runs 3
+./scripts/verify-config-cache.sh -Workers 2
 ```
 
-`verify-failures.ps1` expects deliberate Gradle failures; the default `test` task excludes `negative` and `guard` tags.
+```powershell
+./scripts/verify.ps1 -Workers 2
+./scripts/verify-failures.ps1
+./scripts/verify-multimodule.ps1
+./scripts/verify-workflow.ps1 -Workers 2 -Runs 3
+./scripts/verify-config-cache.ps1 -Workers 2
+```
+
+`verify-failures` expects deliberate Gradle failures; the default `test` task excludes `negative` and `guard` tags.
 
 ## Documentation
 
@@ -129,7 +138,6 @@ Keep `@DirtiesContext` when hooks cannot undo context mutations.
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 | [CONTRACT.md](CONTRACT.md) | Isolation contract (C1–C10) |
 | [VERIFICATION.md](VERIFICATION.md) | Tested versions and evidence |
-| [INTEGRATION-RESEARCH.md](INTEGRATION-RESEARCH.md) | External references and scope |
 | [PUBLISHING.md](PUBLISHING.md) | Maven Central publication |
 | [RELEASING.md](RELEASING.md) | Tagging and GitHub Release steps |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, commits, PRs |
