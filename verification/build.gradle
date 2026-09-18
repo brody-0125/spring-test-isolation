@@ -102,6 +102,14 @@ tasks.register('cleanupFailureTest', Test) {
     maxHeapSize = '384m'
     testLogging { events 'passed', 'failed'; showStandardStreams = true }
 }
+tasks.register('testngSmoke', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useTestNG()
+    include '**/testng/**'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
 tasks.register('boundaryTimeoutTest', Test) {
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath

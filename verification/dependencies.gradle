@@ -12,4 +12,5 @@ dependencies {
     testRuntimeOnly "org.postgresql:postgresql:${versions.postgresqlJdbc}"
     testRuntimeOnly "com.mysql:mysql-connector-j:${versions.mysqlJdbc}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
+    testImplementation "org.testng:testng:${versions.testng}"
 }

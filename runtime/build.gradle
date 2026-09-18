@@ -33,6 +33,7 @@ dependencies {
     api "redis.clients:jedis:${versions.jedis}"
     implementation "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
     implementation "org.junit.jupiter:junit-jupiter-api:${versions.junitJupiter}"
+    compileOnly "org.testng:testng:${versions.testng}"
     testImplementation "org.junit.jupiter:junit-jupiter:${versions.junitJupiter}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
 }

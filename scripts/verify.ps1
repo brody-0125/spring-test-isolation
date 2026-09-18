@@ -44,4 +44,14 @@ try {
     if (!$reused) { throw 'No demonstrated Context reuse' }
     $events | ConvertTo-Json | Set-Content "build/evidence/workers-$Workers-events.json"
     Write-Output "PASS: storage scenarios, internal serial execution, Context reuse; cross-worker overlap=$overlap"
+    $testngLog = "build/evidence/workers-$Workers-testng.log"
+    $ErrorActionPreference = 'Continue'
+    & $gradlew :verification:testngSmoke "-Pworkers=$Workers" --rerun-tasks --console=plain *> $testngLog
+    $testngCode = $LASTEXITCODE
+    $ErrorActionPreference = 'Stop'
+    $testngText = Get-Content -Raw $testngLog
+    if ($testngCode -ne 0 -or $testngText -notmatch 'EVIDENCE start' -or $testngText -notmatch 'PTK class-clean') {
+        throw "TestNG storage smoke failed; inspect $testngLog"
+    }
+    Write-Output 'PASS: TestNG native worker storage smoke'
 } finally { Pop-Location }
