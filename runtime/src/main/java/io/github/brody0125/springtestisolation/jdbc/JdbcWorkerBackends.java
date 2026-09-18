@@ -11,6 +11,7 @@ public final class JdbcWorkerBackends {
     static {
         register(new PostgreSqlJdbcWorkerBackend());
         register(new MySqlJdbcWorkerBackend());
+        register(new OracleJdbcWorkerBackend());
     }
 
     private JdbcWorkerBackends() {}

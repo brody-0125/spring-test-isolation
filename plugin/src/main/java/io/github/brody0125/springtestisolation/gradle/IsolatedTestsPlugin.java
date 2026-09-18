@@ -34,6 +34,7 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
         public abstract Property<String> getCacheBackend();
         public abstract Property<String> getPostgresImage();
         public abstract Property<String> getMysqlImage();
+        public abstract Property<String> getOracleImage();
         public abstract Property<String> getRedisImage();
         public abstract Property<Integer> getRedisLogicalDatabases();
         public abstract Property<Integer> getMaxCacheSlots();
@@ -57,6 +58,7 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
                     spec.getParameters().getCacheBackend().set(options.getCacheBackend());
                     spec.getParameters().getPostgresImage().set(options.getPostgresImage());
                     spec.getParameters().getMysqlImage().set(options.getMysqlImage());
+                    spec.getParameters().getOracleImage().set(options.getOracleImage());
                     spec.getParameters().getRedisImage().set(options.getRedisImage());
                     spec.getParameters().getRedisLogicalDatabases().set(options.getRedisLogicalDatabases());
                     spec.getParameters().getMaxCacheSlots().set(options.getMaxCacheSlots());

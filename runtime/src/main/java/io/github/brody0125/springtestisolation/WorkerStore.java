@@ -21,6 +21,8 @@ public final class WorkerStore implements AutoCloseable {
     public final int redisDatabase;
     public final String namespace;
     public final String jdbcUrl;
+    private String workerUsername;
+    private String workerPassword;
     private final String redisPassword = UUID.randomUUID().toString();
 
     public static synchronized void healthy() {
@@ -66,8 +68,16 @@ public final class WorkerStore implements AutoCloseable {
                 + " run=" + descriptor.getProperty(InfrastructureDescriptor.RUN_ID) + " task=" + System.getProperty("springtestisolation.task", "standalone")
                 + " pid=" + ProcessHandle.current().pid());
     }
-    public String username() { return descriptor.getProperty(InfrastructureDescriptor.JDBC_USER); }
-    public String password() { return descriptor.getProperty(InfrastructureDescriptor.JDBC_PASSWORD); }
+    public String username() {
+        return workerUsername != null ? workerUsername : descriptor.getProperty(InfrastructureDescriptor.JDBC_USER);
+    }
+    public String password() {
+        return workerPassword != null ? workerPassword : descriptor.getProperty(InfrastructureDescriptor.JDBC_PASSWORD);
+    }
+    public void useWorkerJdbcCredentials(String username, String password) {
+        this.workerUsername = username;
+        this.workerPassword = password;
+    }
     public String redisHost() { return descriptor.getProperty(InfrastructureDescriptor.REDIS_HOST); }
     public int redisPort() { return Integer.parseInt(descriptor.getProperty(InfrastructureDescriptor.REDIS_PORT)); }
     public String channel(String logicalName) { return namespace + logicalName; }
@@ -88,7 +98,10 @@ public final class WorkerStore implements AutoCloseable {
         catch (RuntimeException e) { j.close(); throw e; }
     }
     public Connection openAdminJdbc() throws SQLException {
-        return DriverManager.getConnection(descriptor.getProperty(InfrastructureDescriptor.JDBC_URL), username(), password());
+        return DriverManager.getConnection(
+                descriptor.getProperty(InfrastructureDescriptor.JDBC_URL),
+                descriptor.getProperty(InfrastructureDescriptor.JDBC_USER),
+                descriptor.getProperty(InfrastructureDescriptor.JDBC_PASSWORD));
     }
     public Connection connection() throws SQLException { return openWorkerJdbc(); }
     public Connection openWorkerJdbc() throws SQLException { return DriverManager.getConnection(jdbcUrl, username(), password()); }

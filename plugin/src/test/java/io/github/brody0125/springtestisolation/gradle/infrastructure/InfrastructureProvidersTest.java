@@ -7,9 +7,10 @@ class InfrastructureProvidersTest {
     @Test void defaultBackendsAreRegistered() {
         assertEquals(PostgreSqlJdbcInfrastructureProvider.ID, InfrastructureProviders.jdbc("postgresql").id());
         assertEquals(MySqlJdbcInfrastructureProvider.ID, InfrastructureProviders.jdbc("mysql").id());
+        assertEquals(OracleJdbcInfrastructureProvider.ID, InfrastructureProviders.jdbc("oracle").id());
         assertEquals(RedisCacheInfrastructureProvider.ID, InfrastructureProviders.cache("redis").id());
     }
     @Test void unknownBackendThrows() {
-        assertThrows(IllegalArgumentException.class, () -> InfrastructureProviders.jdbc("oracle"));
+        assertThrows(IllegalArgumentException.class, () -> InfrastructureProviders.jdbc("mssql"));
     }
 }

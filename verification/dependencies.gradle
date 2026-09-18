@@ -9,7 +9,9 @@ dependencies {
     testImplementation "org.flywaydb:flyway-core:${versions.flyway}"
     testImplementation "org.flywaydb:flyway-database-postgresql:${versions.flyway}"
     testImplementation "org.flywaydb:flyway-mysql:${versions.flyway}"
+    testImplementation "org.flywaydb:flyway-database-oracle:${versions.flyway}"
     testRuntimeOnly "org.postgresql:postgresql:${versions.postgresqlJdbc}"
     testRuntimeOnly "com.mysql:mysql-connector-j:${versions.mysqlJdbc}"
+    testRuntimeOnly "com.oracle.database.jdbc:ojdbc11:${versions.oracleJdbc}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
 }

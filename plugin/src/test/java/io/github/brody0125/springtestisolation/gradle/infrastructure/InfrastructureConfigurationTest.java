@@ -18,7 +18,8 @@ class InfrastructureConfigurationTest {
         var databases = project.getObjects().property(Integer.class);
         var slots = project.getObjects().property(Integer.class);
         var mysql = project.getObjects().property(String.class);
-        var resolved = InfrastructureConfiguration.resolve(postgres, mysql, redis, databases, slots);
+        var oracle = project.getObjects().property(String.class);
+        var resolved = InfrastructureConfiguration.resolve(postgres, mysql, oracle, redis, databases, slots);
         assertEquals(InfrastructureConfiguration.defaults().postgresImage(), resolved.postgresImage());
         assertEquals(InfrastructureConfiguration.defaults().maxCacheSlots(), resolved.maxCacheSlots());
     }
@@ -32,7 +33,8 @@ class InfrastructureConfigurationTest {
         var slots = project.getObjects().property(Integer.class);
         slots.set(16);
         var mysql = project.getObjects().property(String.class);
+        var oracle = project.getObjects().property(String.class);
         assertThrows(IllegalArgumentException.class,
-                () -> InfrastructureConfiguration.resolve(postgres, mysql, redis, databases, slots));
+                () -> InfrastructureConfiguration.resolve(postgres, mysql, oracle, redis, databases, slots));
     }
 }
