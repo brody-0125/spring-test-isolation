@@ -12,6 +12,7 @@ ext.versions = [
         jedis            : '5.2.0',
         flyway           : '10.22.0',
         smartContext     : '1.0',
+        testng           : '7.10.2',
 ]
 
 ext.containerImages = [

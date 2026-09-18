@@ -102,3 +102,14 @@ overlap="$(WORKERS="$Workers" LOG="$log" EVENTS_JSON="$events_json" perl -we '
 ')"
 
 echo "PASS: storage scenarios, internal serial execution, Context reuse; cross-worker overlap=$overlap"
+
+testng_log="build/evidence/workers-${Workers}-testng.log"
+set +e
+"$gradlew" :verification:testngSmoke "-Pworkers=$Workers" --rerun-tasks --console=plain >"$testng_log" 2>&1
+testng_code=$?
+set -e
+if [[ "$testng_code" -ne 0 ]] || ! grep -q 'EVIDENCE start' "$testng_log" || ! grep -q 'PTK class-clean' "$testng_log"; then
+  echo "TestNG storage smoke failed; inspect $testng_log" >&2
+  exit 1
+fi
+echo 'PASS: TestNG native worker storage smoke'
