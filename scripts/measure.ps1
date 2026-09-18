@@ -1,10 +1,12 @@
 param([int]$Workers = 2)
 $ErrorActionPreference = 'Stop'
-Push-Location $PSScriptRoot
+. (Join-Path $PSScriptRoot 'verify-common.ps1')
+$RepoRoot = Get-RepoRoot
+Push-Location $RepoRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
-    $logPath = Join-Path $PSScriptRoot "build/evidence/workers-$Workers-negative-False.log"
-    $samplePath = Join-Path $PSScriptRoot "build/evidence/workers-$Workers-memory.json"
+    $logPath = Join-Path $RepoRoot "build/evidence/workers-$Workers-negative-False.log"
+    $samplePath = Join-Path $RepoRoot "build/evidence/workers-$Workers-memory.json"
     Set-Content $logPath ''
     # Observe only fixture JVMs whose PID and startup are reported in this run's log.
     $observer = Start-Job -ArgumentList $logPath,$samplePath -ScriptBlock {
@@ -28,7 +30,7 @@ try {
     }
     # Truncate before invoking verify to prevent stale build-completion evidence.
     $timer = [System.Diagnostics.Stopwatch]::StartNew()
-    try { & ./verify.ps1 -Workers $Workers } finally {
+    try { & (Join-Path $PSScriptRoot 'verify.ps1') -Workers $Workers } finally {
         $timer.Stop()
         Wait-Job $observer -Timeout 10 | Out-Null
         Receive-Job $observer | Out-Null

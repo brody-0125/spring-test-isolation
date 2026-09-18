@@ -34,7 +34,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
-      - name: Docker integration (verify.ps1)
+      - name: Docker integration (verify.sh)
         run: |
-          chmod +x gradlew
-          pwsh ./verify.ps1 -Workers 2
+          chmod +x gradlew scripts/*.sh
+          ./scripts/verify.sh -Workers 2

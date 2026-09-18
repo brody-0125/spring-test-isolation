@@ -8,7 +8,7 @@ Release versioning and tagging are described in [RELEASING.md](RELEASING.md). Us
 
 1. Read [CONTRACT.md](CONTRACT.md) and [VERIFICATION.md](VERIFICATION.md) for runtime guarantees and evidence requirements.
 2. Run the checks that match your change (at minimum `./gradlew :runtime:test :verification:test` when Docker is available).
-3. For behavior or isolation changes, run the relevant scripts in [README.md](README.md) (`verify.ps1`, `verify-failures.ps1`, etc.) and keep claims within what those runs prove.
+3. For behavior or isolation changes, run the relevant scripts in [README.md](README.md) (`scripts/verify.ps1`, `scripts/verify-failures.ps1`, etc.) and keep claims within what those runs prove.
 
 ## Branch names
 

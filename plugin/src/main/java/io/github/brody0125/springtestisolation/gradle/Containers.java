@@ -17,6 +17,7 @@ public abstract class Containers implements BuildService<Containers.Parameters>,
         Property<String> getJdbcBackend();
         Property<String> getCacheBackend();
         Property<String> getPostgresImage();
+        Property<String> getMysqlImage();
         Property<String> getRedisImage();
         Property<Integer> getRedisLogicalDatabases();
         Property<Integer> getMaxCacheSlots();
@@ -37,6 +38,7 @@ public abstract class Containers implements BuildService<Containers.Parameters>,
             String cacheId = getParameters().getCacheBackend().getOrElse("redis");
             InfrastructureConfiguration configuration = InfrastructureConfiguration.resolve(
                     getParameters().getPostgresImage(),
+                    getParameters().getMysqlImage(),
                     getParameters().getRedisImage(),
                     getParameters().getRedisLogicalDatabases(),
                     getParameters().getMaxCacheSlots());
