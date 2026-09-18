@@ -12,7 +12,7 @@ try {
         @{ Task='missingListenerTest'; Required='Required listener missing'; Forbidden='FORBIDDEN_MISSING_LISTENER_BODY' },
         @{ Task='connectionGuardTest'; Required='DataSource bypasses worker database'; Forbidden='FORBIDDEN_CONNECTION_BODY|FORBIDDEN_SQL_INITIALIZER' },
         @{ Task='initializationFailureTest'; Required='INJECTED_INITIALIZATION_FAILURE'; Forbidden='FORBIDDEN_INITIALIZATION_BODY' },
-        @{ Task='nestedGuardTest'; Required='@Nested test classes are not supported'; Forbidden='FORBIDDEN_NESTED_BODY' },
+        @{ Task='nestedGuardTest'; Required='@Nested test classes must inherit the enclosing class context'; Forbidden='FORBIDDEN_NESTED_BODY' },
         @{ Task='contextHierarchyGuardTest'; Required='@ContextHierarchy is not supported'; Forbidden='FORBIDDEN_CONTEXT_HIERARCHY_BODY' },
         @{ Task='lazyConnectionGuardTest'; Required='DataSource bypasses worker database'; Forbidden='FORBIDDEN_LAZY_CONNECTION_BODY' }
     )) {

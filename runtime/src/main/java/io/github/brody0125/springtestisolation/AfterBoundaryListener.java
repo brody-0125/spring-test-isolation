@@ -8,6 +8,7 @@ public final class AfterBoundaryListener extends AbstractTestExecutionListener {
     @Override public int getOrder() { return 2980; }
     @Override public void afterTestClass(TestContext test) throws Exception {
         BeforeBoundaryListener.rejectUnsupportedTestModel(test.getTestClass());
+        if (test.getTestClass().isMemberClass()) return;
         try {
             WorkerStore.healthy();
             WorkerStore.get().reset();

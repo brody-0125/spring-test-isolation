@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `@Nested` tests that inherit the enclosing class Spring context. Storage reset still runs at the enclosing class. `@Nested` classes that declare their own context and `@ContextHierarchy` stay rejected.
+
 ## [1.0.0] - 2026-09-17
 
 First stable release of Spring Test Isolation for the verified version matrix in [VERIFICATION.md](VERIFICATION.md).
