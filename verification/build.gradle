@@ -1,4 +1,7 @@
-plugins { id 'io.github.brody-0125.spring-test-isolation' }
+plugins {
+    id 'io.github.brody-0125.spring-test-isolation'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
+}
 tasks.withType(Test).configureEach { testLogging { exceptionFormat = 'full' } }
 apply from: 'dependencies.gradle'
 def jdbcBackendName = findProperty('jdbcBackend') ?: 'postgresql'
@@ -19,7 +22,10 @@ tasks.withType(Test).configureEach {
     systemProperty 'jdbc.backend', jdbcBackendProperty
 }
 test {
-    useJUnitPlatform { excludeTags 'negative', 'guard' }
+    useJUnitPlatform {
+        excludeTags 'negative', 'guard'
+        includeEngines 'junit-jupiter'
+    }
     systemProperty 'fixture.classpath', sourceSets.test.runtimeClasspath.asPath
     maxHeapSize = '384m'
     testLogging { events 'passed', 'failed', 'skipped'; showStandardStreams = true }
@@ -107,6 +113,14 @@ tasks.register('testngSmoke', Test) {
     classpath = sourceSets.test.runtimeClasspath
     useTestNG()
     include '**/testng/**'
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('kotestSmoke', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeEngines 'kotest' }
+    include '**/kotest/**'
     maxHeapSize = '384m'
     testLogging { events 'passed', 'failed'; showStandardStreams = true }
 }
