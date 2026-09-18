@@ -64,15 +64,16 @@ overlap="$(WORKERS="$Workers" LOG="$log" EVENTS_JSON="$events_json" perl -we '
   my $events_json = $ENV{EVENTS_JSON};
   open my $fh, "<", $log or die $!;
   local $/; my $t = <$fh>;
-  my @starts = map { [@$_] } m/EVIDENCE start time=(\d+) worker=(\d+) class=(\w+) context=(\d+)/g;
+  my @events;
+  while ($t =~ /EVIDENCE start time=(\d+) worker=(\d+) class=(\w+) context=(\d+)/g) {
+    my ($time, $worker, $class, $ctx) = ($1, $2, $3, $4);
+    push @events, { class => $class, worker => $worker, context => $ctx, start => $time };
+  }
   my %ends;
   while ($t =~ /EVIDENCE end time=(\d+) worker=(\d+) class=(\w+)/g) { $ends{$3} = $1 }
-  die "Expected six completed storage classes\n" unless @starts == 6 && keys %ends == 6;
-  my @events;
-  for my $s (@starts) {
-    my ($time, $worker, $class, $ctx) = @$s;
-    my $end = $ends{$class} // die "Missing end for $class\n";
-    push @events, { class => $class, worker => $worker, context => $ctx, start => $time, end => $end };
+  die "Expected six completed storage classes\n" unless @events == 6 && keys %ends == 6;
+  for my $e (@events) {
+    $e->{end} = $ends{$e->{class}} // die "Missing end for $e->{class}\n";
   }
   my $overlap = 0;
   for my $a (@events) {

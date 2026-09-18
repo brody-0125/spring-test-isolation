@@ -64,16 +64,15 @@ for run in $(seq 1 "$Runs"); do
     my $run = $ENV{RUN};
     open my $fh, "<", $log or die $!;
     local $/; my $t = <$fh>;
-    my @starts = map { [@$_] } m/WORKFLOW start time=(\d+) worker=(\d+) class=(\w+) context=(\d+)/g;
-    my %ends;
-    while ($t =~ /WORKFLOW end time=(\d+) worker=(\d+) class=(\w+)/g) { $ends{$3} = [$1, $2] }
-    die "Expected four workflow classes\n" unless @starts == 4 && keys %ends == 4;
     my @events;
-    for my $s (@starts) {
-      my ($time, $worker, $class, $ctx) = @$s;
-      my $end = $ends{$class} // die "Missing end for $class\n";
-      die "Missing or duplicate class completion\n" unless @$end == 2;
-      push @events, { class => $class, worker => $worker, context => $ctx, start => $time, end => $end->[0] };
+    while ($t =~ /WORKFLOW start time=(\d+) worker=(\d+) class=(\w+) context=(\d+)/g) {
+      push @events, { class => $3, worker => $2, context => $4, start => $1 };
+    }
+    my %ends;
+    while ($t =~ /WORKFLOW end time=(\d+) worker=(\d+) class=(\w+)/g) { $ends{$3} = $1 }
+    die "Expected four workflow classes\n" unless @events == 4 && keys %ends == 4;
+    for my $e (@events) {
+      $e->{end} = $ends{$e->{class}} // die "Missing end for $e->{class}\n";
     }
     my %unique_workers = map { $_->{worker} => 1 } @events;
     die "Unexpected worker count\n" unless scalar keys %unique_workers == $workers;
