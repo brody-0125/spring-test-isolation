@@ -149,6 +149,7 @@ MySQL coverage includes per-worker database create/drop, `WorkerStore.reset()`, 
 - Your ClassBoundary quiesce/reset/resume implementation must track and stop application threads, schedulers, and external clients. The runtime does not track that work for you.
 - Redis ACLs block FLUSHALL and channels outside the namespace. SELECT can still choose another logical database, so use trusted tests and the supported access paths.
 - Spring Session's Redis keyevent channels need integration beyond the current namespace contract. These fixtures cover application channels. We did not run Spring Session or Spring Modulith compatibility tests.
-- We have not verified or claimed support for Redis Cluster, TestNG/Kotest, context hierarchies, configuration cache, or remote workers in distributed CI.
+- We have not verified or claimed support for Redis Cluster, Kotest, context hierarchies, configuration cache, or remote workers in distributed CI.
+- TestNG native (`useTestNG()`, TestNG 7.10.2): Gradle rejects `parallel`, `threadCount` > 1, and suite XML. Smart Context `SmartDirtiesSuiteListener` orders classes. Kotest can use JUnit Platform and Smart Context AutoScan, but this repository has no Kotest fixture (C10), so Kotest stays unsupported. The plugin still forces `kotest.framework.parallelism=1` on JUnit Platform tasks.
 - We provide source code, the Gradle Wrapper, local publication definitions, and runnable fixtures. We have not published artifacts to a public registry.
 - We verified retry by allocating fresh storage in a new JVM. Test external retry plugins that repeat a JUnit execution plan within the same JVM as a separate case.

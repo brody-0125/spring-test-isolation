@@ -4,29 +4,71 @@ import org.gradle.api.*;
 import org.gradle.api.provider.*;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.api.tasks.testing.junitplatform.JUnitPlatformOptions;
+import org.gradle.api.tasks.testing.testng.TestNGOptions;
 import org.gradle.process.CommandLineArgumentProvider;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureOverrides;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureProviders;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class IsolatedTestsPlugin implements Plugin<Project> {
     private static final String ORDERER = "com.github.seregamorph.testsmartcontext.jupiter.SmartDirtiesClassOrderer";
     public static class ValidateSettings implements Action<Task> {
         @Override public void execute(Task task) {
-            Test test = (Test) task;
-            java.util.Map<String, String> required = java.util.Map.of(
-                    "junit.jupiter.execution.parallel.enabled", "false",
-                    "junit.jupiter.extensions.autodetection.enabled", "true",
-                    "junit.jupiter.testclass.order.default", ORDERER);
-            required.forEach((key, value) -> {
-                if (!value.equals(String.valueOf(test.getSystemProperties().get(key))))
-                    throw new GradleException("Incompatible test setting: " + key + " must be " + value);
-                for (String argument : test.getJvmArgs()) {
-                    if (argument.startsWith("-D" + key + "=") && !argument.equals("-D" + key + "=" + value))
-                        throw new GradleException("Incompatible JVM argument: " + argument);
-                }
-            });
+            validateFramework((Test) task);
         }
+    }
+    static void applyFramework(Test test) {
+        if (test.getOptions() instanceof TestNGOptions testng) {
+            configureTestNG(testng);
+            return;
+        }
+        if (!(test.getOptions() instanceof JUnitPlatformOptions)) test.useJUnitPlatform();
+        test.systemProperty("junit.jupiter.execution.parallel.enabled", "false");
+        test.systemProperty("junit.jupiter.extensions.autodetection.enabled", "true");
+        test.systemProperty("junit.jupiter.testclass.order.default", ORDERER);
+        test.systemProperty("kotest.framework.parallelism", "1");
+    }
+    static void configureTestNG(TestNGOptions options) {
+        validateTestNG(options);
+        options.setParallel("none");
+        options.setThreadCount(1);
+        var listeners = new LinkedHashSet<>(options.getListeners());
+        listeners.add("com.github.seregamorph.testsmartcontext.testng.SmartDirtiesSuiteListener");
+        listeners.add("io.github.brody0125.springtestisolation.TestNGExecutionGuard");
+        options.setListeners(listeners);
+    }
+    static void validateFramework(Test test) {
+        if (test.getOptions() instanceof TestNGOptions testng) {
+            validateTestNG(testng);
+            return;
+        }
+        if (!(test.getOptions() instanceof JUnitPlatformOptions))
+            throw new GradleException("Only JUnit Platform and TestNG are supported with worker isolation");
+        java.util.Map<String, String> required = java.util.Map.of(
+                "junit.jupiter.execution.parallel.enabled", "false",
+                "junit.jupiter.extensions.autodetection.enabled", "true",
+                "junit.jupiter.testclass.order.default", ORDERER,
+                "kotest.framework.parallelism", "1");
+        required.forEach((key, value) -> {
+            if (!value.equals(String.valueOf(test.getSystemProperties().get(key))))
+                throw new GradleException("Incompatible test setting: " + key + " must be " + value);
+            for (String argument : test.getJvmArgs()) {
+                if (argument.startsWith("-D" + key + "=") && !argument.equals("-D" + key + "=" + value))
+                    throw new GradleException("Incompatible JVM argument: " + argument);
+            }
+        });
+    }
+    static void validateTestNG(TestNGOptions options) {
+        String parallel = options.getParallel();
+        if (parallel != null && !parallel.isBlank() && !"none".equalsIgnoreCase(parallel)
+                && !"false".equalsIgnoreCase(parallel))
+            throw new GradleException("TestNG parallel execution must be disabled inside each Gradle worker");
+        if (options.getThreadCount() > 1)
+            throw new GradleException("TestNG threadCount must be 1 inside each Gradle worker");
+        if (!options.getSuiteXmlFiles().isEmpty())
+            throw new GradleException("TestNG suite XML is unsupported with worker isolation");
     }
     public abstract static class Options {
         public abstract Property<Integer> getWorkers();
@@ -70,6 +112,7 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
             test.systemProperty("junit.jupiter.extensions.autodetection.enabled", "true");
             test.systemProperty("junit.jupiter.testclass.order.default",
                     ORDERER);
+            test.systemProperty("kotest.framework.parallelism", "1");
             test.setForkEvery(0);
             test.doFirst(new ValidateSettings());
         });
@@ -83,7 +126,10 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
             } catch (IllegalArgumentException e) {
                 throw new GradleException(e.getMessage(), e);
             }
-            p.getTasks().withType(Test.class).configureEach(test -> test.setMaxParallelForks(workers));
+            p.getTasks().withType(Test.class).configureEach(test -> {
+                test.setMaxParallelForks(workers);
+                applyFramework(test);
+            });
         });
     }
 }

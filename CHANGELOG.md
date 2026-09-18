@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Native TestNG (`useTestNG()`) worker isolation: Smart Context suite ordering, sequential classes inside each worker, and a storage smoke fixture.
+- Gradle configuration fails when a TestNG task enables `parallel`, `threadCount` > 1, or suite XML.
+
+### Changed
+
+- JUnit Platform tasks set `kotest.framework.parallelism=1`. Kotest remains unverified and unsupported.
+
 ## [1.0.0] - 2026-09-17
 
 First stable release of Spring Test Isolation for the verified version matrix in [VERIFICATION.md](VERIFICATION.md).
@@ -32,4 +43,5 @@ First stable release of Spring Test Isolation for the verified version matrix in
 - [RELEASING.md](RELEASING.md) documents the release and publication workflow.
 - [PUBLISHING.md](PUBLISHING.md) and Maven Central Gradle configuration (Vanniktech Maven Publish; plugin marker + runtime).
 
+[Unreleased]: https://github.com/brody-0125/spring-test-isolation/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/brody-0125/spring-test-isolation/releases/tag/v1.0.0
