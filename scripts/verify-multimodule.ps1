@@ -22,7 +22,7 @@ try {
             if ([int]$report.testsuite.failures -ne 0 -or [int]$report.testsuite.errors -ne 0) { throw "Failure in $file" }
             $total += [int]$report.testsuite.tests
         }
-        if ($total -ne 13) { throw "Expected thirteen tests for $module; got $total" }
+        if ($total -ne 14) { throw "Expected fourteen tests for $module; got $total" }
     }
-    Write-Output 'PASS: both modules share one container pair; 26 tests passed.'
+    Write-Output 'PASS: both modules share one container pair; 28 tests passed.'
 } finally { Pop-Location }

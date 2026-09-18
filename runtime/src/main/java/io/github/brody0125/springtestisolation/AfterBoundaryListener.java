@@ -7,6 +7,7 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 public final class AfterBoundaryListener extends AbstractTestExecutionListener {
     @Override public int getOrder() { return 2980; }
     @Override public void afterTestClass(TestContext test) throws Exception {
+        if (test.getTestClass().isMemberClass()) return;
         BeforeBoundaryListener.rejectUnsupportedTestModel(test.getTestClass());
         try {
             WorkerStore.healthy();

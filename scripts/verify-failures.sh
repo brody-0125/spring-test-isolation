@@ -33,7 +33,7 @@ run_case guardFailureTest '@Execution\(CONCURRENT\) is incompatible' 'FORBIDDEN_
 run_case missingListenerTest 'Required listener missing' 'FORBIDDEN_MISSING_LISTENER_BODY'
 run_case connectionGuardTest 'DataSource bypasses worker database' 'FORBIDDEN_CONNECTION_BODY|FORBIDDEN_SQL_INITIALIZER'
 run_case initializationFailureTest 'INJECTED_INITIALIZATION_FAILURE' 'FORBIDDEN_INITIALIZATION_BODY'
-run_case nestedGuardTest '@Nested test classes are not supported' 'FORBIDDEN_NESTED_BODY'
+run_case nestedGuardTest '@Nested test classes must inherit the enclosing class context' 'FORBIDDEN_NESTED_BODY'
 run_case contextHierarchyGuardTest '@ContextHierarchy is not supported' 'FORBIDDEN_CONTEXT_HIERARCHY_BODY'
 run_case lazyConnectionGuardTest 'DataSource bypasses worker database' 'FORBIDDEN_LAZY_CONNECTION_BODY'
 
