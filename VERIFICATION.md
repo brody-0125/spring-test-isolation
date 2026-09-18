@@ -142,6 +142,19 @@ One Gradle build uses a single shared Build Service and one `jdbc.backend` / `ca
 
 MySQL coverage includes per-worker database create/drop, `WorkerStore.reset()`, Flyway smoke, storage reset smoke, and the connection guard negative fixture. Workflow fixtures remain PostgreSQL-only.
 
+## Gradle configuration cache
+
+On 2026-09-18 we ran `scripts/verify-config-cache.ps1` on Amazon Corretto 17.0.9 and Gradle 8.14.3. Each run stored a configuration cache entry and recorded one shared infrastructure start and close.
+
+| Workers | Result | Local log |
+|---|---|---|
+| 1 | PASS | `build/evidence/config-cache-1.log` |
+| 2 | PASS | `build/evidence/config-cache-2.log` |
+
+This covers `:runtime:test` and `:verification:test` only. We do not claim configuration cache for the `plugin` included build.
+
+CI job `config-cache` on `ubuntu-latest` (Temurin 17) reruns `scripts/verify-config-cache.sh -Workers 2` as a regression gate. That job is not the Corretto evidence in the table.
+
 ## Remaining limitations
 
 - We tested the version combination above under the ClassBoundary and storage access contracts. Test other versions, operating systems, and large applications before adopting them.
@@ -149,6 +162,6 @@ MySQL coverage includes per-worker database create/drop, `WorkerStore.reset()`, 
 - Your ClassBoundary quiesce/reset/resume implementation must track and stop application threads, schedulers, and external clients. The runtime does not track that work for you.
 - Redis ACLs block FLUSHALL and channels outside the namespace. SELECT can still choose another logical database, so use trusted tests and the supported access paths.
 - Spring Session's Redis keyevent channels need integration beyond the current namespace contract. These fixtures cover application channels. We did not run Spring Session or Spring Modulith compatibility tests.
-- We have not verified or claimed support for Redis Cluster, TestNG/Kotest, context hierarchies, configuration cache, or remote workers in distributed CI.
+- We have not verified or claimed support for Redis Cluster, TestNG/Kotest, context hierarchies, configuration cache of the `plugin` included build, or remote workers in distributed CI.
 - We provide source code, the Gradle Wrapper, local publication definitions, and runnable fixtures. We have not published artifacts to a public registry.
 - We verified retry by allocating fresh storage in a new JVM. Test external retry plugins that repeat a JUnit execution plan within the same JVM as a separate case.
