@@ -9,15 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-### Added
-
 - `@Nested` tests that inherit the enclosing class Spring context. Storage reset still runs at the enclosing class. `@Nested` classes that declare their own context and `@ContextHierarchy` stay rejected.
 - Native TestNG (`useTestNG()`) worker isolation: Smart Context suite ordering, sequential classes inside each worker, and a storage smoke fixture.
+- Kotest on JUnit Platform (`kotest-runner-junit5`): four specs covering worker storage, Smart Context eager close, and sequential execution inside each worker.
 - Gradle configuration fails when a TestNG task enables `parallel`, `threadCount` > 1, or suite XML.
 
 ### Changed
 
-- JUnit Platform tasks set `kotest.framework.parallelism=1`. Kotest remains unverified and unsupported.
+- JUnit Platform tasks set `kotest.framework.parallelism=1`.
 
 ## [1.0.0] - 2026-09-17
 

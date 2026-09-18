@@ -54,4 +54,30 @@ try {
         throw "TestNG storage smoke failed; inspect $testngLog"
     }
     Write-Output 'PASS: TestNG native worker storage smoke'
+    $kotestLog = "build/evidence/workers-$Workers-kotest.log"
+    $ErrorActionPreference = 'Continue'
+    & $gradlew :verification:kotestSmoke "-Pworkers=$Workers" --rerun-tasks --console=plain *> $kotestLog
+    $kotestCode = $LASTEXITCODE
+    $ErrorActionPreference = 'Stop'
+    $kotestText = Get-Content -Raw $kotestLog
+    if ($kotestCode -ne 0 -or $kotestText -notmatch 'PTK class-clean' -or $kotestText -notmatch 'Auto-closing context after') {
+        throw "Kotest worker isolation failed; inspect $kotestLog"
+    }
+    $kotestStarts = [regex]::Matches($kotestText, 'EVIDENCE start time=(\d+) worker=(\d+) class=(\w+) context=(\d+)')
+    $kotestEnds = [regex]::Matches($kotestText, 'EVIDENCE end time=(\d+) worker=(\d+) class=(\w+)')
+    if ($kotestStarts.Count -ne 4 -or $kotestEnds.Count -ne 4) { throw 'Expected four completed Kotest specs' }
+    $kotestEvents = foreach ($start in $kotestStarts) {
+        $end = $kotestEnds | Where-Object { $_.Groups[3].Value -eq $start.Groups[3].Value }
+        [pscustomobject]@{ Class=$start.Groups[3].Value; Worker=$start.Groups[2].Value; Context=$start.Groups[4].Value; Start=[long]$start.Groups[1].Value; End=[long]$end.Groups[1].Value }
+    }
+    foreach ($a in $kotestEvents) { foreach ($b in $kotestEvents) {
+        if ($a.Class -eq $b.Class) { continue }
+        if ($a.Start -lt $b.End -and $b.Start -lt $a.End -and $a.Worker -eq $b.Worker) {
+            throw 'Concurrent Kotest spec bodies inside a worker'
+        }
+    } }
+    if (-not ($kotestEvents | Group-Object Worker,Context | Where-Object Count -gt 1)) {
+        throw 'No demonstrated Kotest Context reuse'
+    }
+    Write-Output 'PASS: Kotest storage, Smart Context close, serial specs inside each worker'
 } finally { Pop-Location }
