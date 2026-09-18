@@ -16,17 +16,13 @@ class IsolatedTestsPluginFrameworkTest {
         assertTrue(error.getMessage().contains("TestNG parallel"));
     }
 
-    @Test void testNgRegistersOrderingAndGuardListeners() {
+    @Test void testNgForcesSequentialExecution() {
         var test = testTask();
         test.useTestNG();
         IsolatedTestsPlugin.applyFramework(test);
         var options = (TestNGOptions) test.getOptions();
         assertEquals("none", options.getParallel());
         assertEquals(1, options.getThreadCount());
-        assertTrue(options.getListeners().contains(
-                "com.github.seregamorph.testsmartcontext.testng.SmartDirtiesSuiteListener"));
-        assertTrue(options.getListeners().contains(
-                "io.github.brody0125.springtestisolation.TestNGExecutionGuard"));
     }
 
     @Test void junit4IsSwitchedToJUnitPlatform() {

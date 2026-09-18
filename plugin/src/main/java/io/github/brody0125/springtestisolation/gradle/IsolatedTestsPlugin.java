@@ -9,7 +9,6 @@ import org.gradle.api.tasks.testing.testng.TestNGOptions;
 import org.gradle.process.CommandLineArgumentProvider;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureOverrides;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureProviders;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 public class IsolatedTestsPlugin implements Plugin<Project> {
@@ -34,10 +33,6 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
         validateTestNG(options);
         options.setParallel("none");
         options.setThreadCount(1);
-        var listeners = new LinkedHashSet<>(options.getListeners());
-        listeners.add("com.github.seregamorph.testsmartcontext.testng.SmartDirtiesSuiteListener");
-        listeners.add("io.github.brody0125.springtestisolation.TestNGExecutionGuard");
-        options.setListeners(listeners);
     }
     static void validateFramework(Test test) {
         if (test.getOptions() instanceof TestNGOptions testng) {
