@@ -16,7 +16,7 @@
 - Reuses Spring contexts via TestContext; [spring-test-smart-context](https://github.com/seregamorph/spring-test-smart-context) orders classes and closes contexts after the last class in a configuration group.
 - Clears worker storage between classes (`TRUNCATE` / `FLUSHDB`), runs application `ClassBoundary` hooks, and **poisons** the worker on cleanup or policy failures.
 
-Unsupported: `@Nested`, `@ContextHierarchy`, Redis Cluster/Sentinel, Kotest — see [VERIFICATION.md](VERIFICATION.md). TestNG is supported on native `useTestNG()` tasks when classes stay sequential inside each worker (`parallel`/`threadCount`/suite XML are rejected).
+Unsupported: `@Nested` with its own context, `@ContextHierarchy`, Redis Cluster/Sentinel, Kotest — see [VERIFICATION.md](VERIFICATION.md). `@Nested` that inherits the enclosing class context is supported; nested classes share worker storage until the enclosing class ends. TestNG is supported on native `useTestNG()` tasks when classes stay sequential inside each worker (`parallel`/`threadCount`/suite XML are rejected).
 
 ## Repository layout
 
