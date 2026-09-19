@@ -43,6 +43,7 @@ public final class InfrastructureVersions {
 }
 sourceSets.main.java.srcDir infrastructureVersionsDir
 tasks.named('compileJava') { dependsOn 'generateInfrastructureVersions' }
+tasks.named('sourcesJar') { dependsOn 'generateInfrastructureVersions' }
 
 dependencies {
     implementation platform("org.testcontainers:testcontainers-bom:${versions.testcontainers}")
