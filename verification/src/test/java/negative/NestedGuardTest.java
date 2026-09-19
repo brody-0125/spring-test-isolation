@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = TestApplication.class)
 class NestedGuardTest {
     @Nested
+    @SpringBootTest(classes = TestApplication.class)
     class NestedCase {
         @Test void forbiddenBody() { throw new AssertionError("FORBIDDEN_NESTED_BODY"); }
     }

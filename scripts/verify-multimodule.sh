@@ -34,9 +34,9 @@ for module in verification verification-peer; do
     total=$((total + tests))
   done
   shopt -u nullglob
-  if [[ "$total" -ne 13 ]]; then
-    echo "Expected thirteen tests for $module; got $total" >&2
+  if [[ "$total" -ne 14 ]]; then
+    echo "Expected fourteen tests for $module; got $total" >&2
     exit 1
   fi
 done
-echo 'PASS: both modules share one container pair; 26 tests passed.'
+echo 'PASS: both modules share one container pair; 28 tests passed.'

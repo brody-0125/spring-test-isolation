@@ -102,3 +102,48 @@ overlap="$(WORKERS="$Workers" LOG="$log" EVENTS_JSON="$events_json" perl -we '
 ')"
 
 echo "PASS: storage scenarios, internal serial execution, Context reuse; cross-worker overlap=$overlap"
+
+testng_log="build/evidence/workers-${Workers}-testng.log"
+set +e
+"$gradlew" :verification:testngSmoke "-Pworkers=$Workers" --rerun-tasks --console=plain >"$testng_log" 2>&1
+testng_code=$?
+set -e
+if [[ "$testng_code" -ne 0 ]] || ! grep -q 'EVIDENCE start' "$testng_log" || ! grep -q 'PTK class-clean' "$testng_log"; then
+  echo "TestNG storage smoke failed; inspect $testng_log" >&2
+  exit 1
+fi
+echo 'PASS: TestNG native worker storage smoke'
+
+kotest_log="build/evidence/workers-${Workers}-kotest.log"
+set +e
+"$gradlew" :verification:kotestSmoke "-Pworkers=$Workers" --rerun-tasks --console=plain >"$kotest_log" 2>&1
+kotest_code=$?
+set -e
+if [[ "$kotest_code" -ne 0 ]] || ! grep -q 'PTK class-clean' "$kotest_log" || ! grep -q 'Auto-closing context after' "$kotest_log"; then
+  echo "Kotest worker isolation failed; inspect $kotest_log" >&2
+  exit 1
+fi
+WORKERS="$Workers" LOG="$kotest_log" perl -we '
+  use strict; use warnings;
+  open my $fh, "<", $ENV{LOG} or die $!;
+  local $/; my $t = <$fh>;
+  my @events;
+  while ($t =~ /EVIDENCE start time=(\d+) worker=(\d+) class=(\w+) context=(\d+)/g) {
+    push @events, { class => $3, worker => $2, context => $4, start => $1 };
+  }
+  my %ends;
+  while ($t =~ /EVIDENCE end time=(\d+) worker=(\d+) class=(\w+)/g) { $ends{$3} = $1 }
+  die "Expected four completed Kotest specs\n" unless @events == 4 && keys %ends == 4;
+  for my $e (@events) { $e->{end} = $ends{$e->{class}} // die "Missing end for $e->{class}\n" }
+  for my $a (@events) {
+    for my $b (@events) {
+      next if $a->{class} eq $b->{class};
+      die "Concurrent Kotest spec bodies inside a worker\n"
+        if $a->{start} < $b->{end} && $b->{start} < $a->{end} && $a->{worker} eq $b->{worker};
+    }
+  }
+  my %reuse;
+  $reuse{"$_->{worker},$_->{context}"}++ for @events;
+  die "No demonstrated Kotest Context reuse\n" unless grep { $_ > 1 } values %reuse;
+'
+echo 'PASS: Kotest storage, Smart Context close, serial specs inside each worker'
