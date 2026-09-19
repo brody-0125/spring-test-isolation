@@ -3,6 +3,7 @@ apply from: '../verification/dependencies.gradle'
 sourceSets.test.java.srcDir '../verification/src/test/java'
 sourceSets.test.resources.srcDir '../verification/src/test/resources'
 isolatedTests { workers = 2 }
+io.github.brody0125.springtestisolation.gradle.ConsumerInfrastructure.install(project)
 test {
     useJUnitPlatform { excludeTags 'negative', 'guard' }
     systemProperty 'fixture.classpath', sourceSets.test.runtimeClasspath.asPath

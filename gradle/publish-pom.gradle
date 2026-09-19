@@ -1,6 +1,6 @@
 ext.springTestIsolationPom = { MavenPom pom ->
     pom.name = project.ext.has('publishArtifactTitle') ? project.ext.publishArtifactTitle : project.name
-    pom.description = 'Parallel Spring tests across Gradle workers with shared containers and per-worker storage isolation.'
+    pom.description = 'Parallel Spring tests across Gradle workers with per-worker storage isolation, attaching to consumer JDBC and optional Redis.'
     pom.url = 'https://github.com/brody-0125/spring-test-isolation'
     pom.licenses {
         license {

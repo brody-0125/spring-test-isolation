@@ -14,6 +14,7 @@ public final class InfrastructureDescriptor {
 
     public static final String DEFAULT_JDBC_BACKEND = "postgresql";
     public static final String DEFAULT_CACHE_BACKEND = "redis";
+    public static final String NONE_CACHE_BACKEND = "none";
 
     private InfrastructureDescriptor() {}
 }

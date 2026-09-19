@@ -93,11 +93,6 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
                 .registerIfAbsent("spring-test-isolation-containers", Containers.class, spec -> {
                     spec.getParameters().getJdbcBackend().set(options.getJdbcBackend());
                     spec.getParameters().getCacheBackend().set(options.getCacheBackend());
-                    spec.getParameters().getPostgresImage().set(options.getPostgresImage());
-                    spec.getParameters().getMysqlImage().set(options.getMysqlImage());
-                    spec.getParameters().getOracleImage().set(options.getOracleImage());
-                    spec.getParameters().getRedisImage().set(options.getRedisImage());
-                    spec.getParameters().getRedisLogicalDatabases().set(options.getRedisLogicalDatabases());
                     spec.getParameters().getMaxCacheSlots().set(options.getMaxCacheSlots());
                 });
         project.getTasks().withType(Test.class).configureEach(test -> {

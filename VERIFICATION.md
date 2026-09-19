@@ -9,7 +9,7 @@ Verified environment: Amazon Corretto 17.0.9, Gradle 8.14.3, Spring Boot 3.5.1 /
 | C1 Parallel workers / sequential execution within each worker | PASS: `scripts/verify.ps1` compares execution intervals for six classes, checking overlap across workers and no overlap within a worker |
 | C2 Storage and Pub/Sub isolation | PASS: identical primary keys and Redis keys, real HTTP writes, namespaced pattern subscriptions, and FLUSHALL rejected with NOPERM |
 | C3/C4 Context reuse / side-effect-free configuration discovery | PASS: context identity reused within a worker; DiscoveryTest runs without a descriptor |
-| C5/C6 Separate context and storage lifecycles | PASS: configuration groups run in sequence; cleanup removes destruction callback writes; two modules share one container startup and shutdown |
+| C5/C6 Separate context and storage lifecycles | PASS: configuration groups run in sequence; cleanup removes destruction callback writes; two modules share one consumer infrastructure startup and shutdown |
 | C7/C8 Delayed work, destruction callbacks, and cleanup failures | PASS: delayed writes, local state, and destruction callback rows do not leak into the next class; a failure or 500 ms timeout prevents the next class's body from running |
 | C9 Reject conflicting configuration | PASS: guards reject concurrent execution annotations, missing required listeners, connections to another database, and disabled extension autodetection |
 | C10 Failures, retries, and worker crashes | PASS: initialization failure blocks test bodies; after halt(17) in a separate JVM, a new JVM receives different DB/Redis storage; Redis allocation failure after DB creation removes the DB; multiple modules verified |
@@ -94,7 +94,7 @@ The files `workers-*-memory.json` retain the historical memory samples. The expa
 
 ## Shared infrastructure descriptor
 
-Library, Testcontainers, and container image versions are defined in [gradle/dependency-versions.gradle](gradle/dependency-versions.gradle). The plugin SPI reads Docker image tags from `InfrastructureVersions` (generated at compile time from that file). Runtime and verification modules resolve Maven coordinates from the same `versions` map.
+Library, Testcontainers, and container image versions are defined in [gradle/dependency-versions.gradle](gradle/dependency-versions.gradle). This repository's verification fixtures start PostgreSQL and Redis (`ConsumerInfrastructure.install` in `verification/build.gradle`) using those tags. The 1.2.0 plugin apply path does **not** start containers and **ignores** `isolatedTests` image overrides (`postgresImage`, `mysqlImage`, `oracleImage`, `redisImage`, `redisLogicalDatabases`). Runtime and verification modules resolve Maven coordinates from the same `versions` map. 1.1.x remains the line whose plugin starts containers from those image properties.
 
 The Gradle Build Service writes a `connection.properties` file per build and passes its path to workers as `-Dspringtestisolation.descriptor=…`. The runtime reads backend ids and connection endpoints from this file; workers never share slot files within a build.
 
@@ -118,20 +118,18 @@ isolatedTests {
 }
 ```
 
-Optional consumer overrides (unset = plugin defaults from `dependency-versions.gradle` / `InfrastructureVersions`):
+Optional consumer overrides (unset = plugin defaults from `dependency-versions.gradle` / `InfrastructureVersions`). **1.2.0 ignores image properties**; they do not start containers. `maxCacheSlots` still sizes the descriptor slot files.
 
-| DSL property | Applies when | Default |
+| DSL property | 1.2.0 effect | Default |
 |--------------|--------------|---------|
-| `postgresImage` | `jdbcBackend = 'postgresql'` | `postgres:16.9-alpine` |
-| `mysqlImage` | `jdbcBackend = 'mysql'` | `mysql:8.4.5` |
-| `oracleImage` | `jdbcBackend = 'oracle'` | `gvenzl/oracle-xe:21-slim-faststart` |
-| `redisImage` | `cacheBackend = 'redis'` | `redis:7.4.4-alpine` |
-| `redisLogicalDatabases` | `cacheBackend = 'redis'` | `256` |
-| `maxCacheSlots` | `cacheBackend = 'redis'` | `255` |
+| `postgresImage` | ignored | `postgres:16.9-alpine` (1.1.x start path / this repo's consumer fixtures) |
+| `mysqlImage` | ignored | `mysql:8.4.5` |
+| `oracleImage` | ignored | `gvenzl/oracle-xe:21-slim-faststart` |
+| `redisImage` | ignored | `redis:7.4.4-alpine` |
+| `redisLogicalDatabases` | ignored | `256` |
+| `maxCacheSlots` | descriptor slot count | `255` |
 
-Changing images or Redis capacity is **not** part of the verified matrix unless you record new evidence. Overrides must keep `maxCacheSlots ≤ redisLogicalDatabases` and `workers ≤ maxCacheSlots`.
-
-Additional engines register by implementing `JdbcWorkerBackend` / `CacheWorkerBackend` in the runtime module and `JdbcInfrastructureProvider` / `CacheInfrastructureProvider` in the plugin module, then wiring ids into the registries.
+Additional engines register by implementing `JdbcWorkerBackend` / `CacheWorkerBackend` in the runtime module. This repository's verification fixtures start matching Testcontainers images through `JdbcInfrastructureProvider` / `CacheInfrastructureProvider`; the plugin does not register that start path on apply.
 
 One Gradle build uses a single shared Build Service and one `jdbc.backend` / `cache.backend` pair; the first registered plugin configuration wins if subprojects disagree.
 

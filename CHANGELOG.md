@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** The Gradle plugin no longer starts PostgreSQL or Redis. It attaches to consumer `spring.datasource.url` / `username` / `password` (required) and to Redis only when `spring.data.redis.host` or `spring.data.redis.url` is set. `redis.connection.*` does not attach Redis. Image override DSL (`postgresImage`, `mysqlImage`, `oracleImage`, `redisImage`, `redisLogicalDatabases`) is ignored. 1.1.x remains the line that starts containers.
+
 ## [1.1.0] - 2026-09-19
 
 Minor release after **1.0.0**. Default `postgresql` + `redis` behavior is unchanged unless you opt into new backends or DSL overrides.
