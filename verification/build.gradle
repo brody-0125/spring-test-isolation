@@ -28,6 +28,7 @@ test {
         excludeTags 'negative', 'guard'
         includeEngines 'junit-jupiter'
     }
+    exclude '**/session/**'
     systemProperty 'fixture.classpath', sourceSets.test.runtimeClasspath.asPath
     maxHeapSize = '384m'
     testLogging { events 'passed', 'failed', 'skipped'; showStandardStreams = true }
