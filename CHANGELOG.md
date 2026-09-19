@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - Recorded configuration-cache PASS for `:runtime:test` and `:verification:test` with workers 1 and 2. The `plugin` included build is not claimed.
+- Test framework compatibility matrix for JUnit, TestNG, and Kotest (closes spike in issue #11).
 
 ## [1.0.0] - 2026-09-17
 
