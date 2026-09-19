@@ -6,8 +6,8 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -33,14 +33,11 @@ public class SessionApplication {
             this.redis = redis;
             this.store = store;
             listener.setConnectionFactory(redis.getConnectionFactory());
-            var keyeventHandler = (org.springframework.data.redis.connection.MessageListener) (message, pattern) ->
-                    keyEvents.add(new String(message.getChannel(), StandardCharsets.UTF_8) + " "
+            MessageListener keyeventHandler = (message, pattern) -> keyEvents.add(
+                    new String(message.getChannel(), StandardCharsets.UTF_8) + " "
                             + new String(message.getBody(), StandardCharsets.UTF_8));
             listener.addMessageListener(keyeventHandler, new ChannelTopic(store.redisKeyeventChannel("del")));
             listener.addMessageListener(keyeventHandler, new ChannelTopic(store.redisKeyeventChannel("expired")));
-            listener.addMessageListener((message, pattern) -> keyEvents.add("created "
-                            + new String(message.getChannel(), StandardCharsets.UTF_8)),
-                    new PatternTopic(store.channelPattern("event:" + store.redisDatabase + ":created:*")));
             listener.afterPropertiesSet();
         }
 
@@ -50,7 +47,6 @@ public class SessionApplication {
             String indexKey = store.channel("index:PRINCIPAL:" + principal);
             redis.opsForHash().put(sessionKey, "sessionAttr:principal", principal);
             redis.opsForValue().set(indexKey, sessionId);
-            redis.convertAndSend(store.channel("event:" + store.redisDatabase + ":created:" + sessionId), principal);
             return sessionId;
         }
 
@@ -60,7 +56,7 @@ public class SessionApplication {
         }
 
         void expireSession(String sessionId) {
-            redis.opsForValue().set(store.channel("sessions:expires:" + sessionId), sessionId, Duration.ofSeconds(1));
+            redis.opsForValue().set(store.channel("sessions:expires:" + sessionId), sessionId, Duration.ofMillis(200));
         }
 
         @Override public void quiesce() throws Exception { listener.stop(); }
