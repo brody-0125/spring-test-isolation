@@ -15,6 +15,9 @@ public final class InfrastructureOverrides {
         if (options.getMysqlImage().isPresent() && !MySqlJdbcInfrastructureProvider.ID.equals(jdbc)) {
             throw new GradleException("mysqlImage is only supported when jdbcBackend is 'mysql'");
         }
+        if (options.getOracleImage().isPresent() && !OracleJdbcInfrastructureProvider.ID.equals(jdbc)) {
+            throw new GradleException("oracleImage is only supported when jdbcBackend is 'oracle'");
+        }
         if (options.getRedisImage().isPresent() && !RedisCacheInfrastructureProvider.ID.equals(cache)) {
             throw new GradleException("redisImage is only supported when cacheBackend is 'redis'");
         }
@@ -28,6 +31,7 @@ public final class InfrastructureOverrides {
             InfrastructureConfiguration.resolve(
                     options.getPostgresImage(),
                     options.getMysqlImage(),
+                    options.getOracleImage(),
                     options.getRedisImage(),
                     options.getRedisLogicalDatabases(),
                     options.getMaxCacheSlots());

@@ -79,6 +79,7 @@ isolatedTests {
     // Optional (defaults match VERIFICATION.md):
     // postgresImage = 'postgres:16.9-alpine'
     // mysqlImage = 'mysql:8.4.5'   // when jdbcBackend = 'mysql'
+    // oracleImage = 'gvenzl/oracle-xe:21-slim-faststart' // when jdbcBackend = 'oracle'
     // redisImage = 'redis:7.4.4-alpine'
     // redisLogicalDatabases = 256
     // maxCacheSlots = 255
@@ -119,6 +120,7 @@ Keep `@DirtiesContext` when hooks cannot undo context mutations.
 ./scripts/verify-multimodule.sh
 ./scripts/verify-workflow.sh -Workers 2 -Runs 3
 ./scripts/verify-config-cache.sh -Workers 2
+./scripts/verify-oracle.sh -Workers 2
 ```
 
 ```powershell
@@ -127,6 +129,7 @@ Keep `@DirtiesContext` when hooks cannot undo context mutations.
 ./scripts/verify-multimodule.ps1
 ./scripts/verify-workflow.ps1 -Workers 2 -Runs 3
 ./scripts/verify-config-cache.ps1 -Workers 2
+./scripts/verify-oracle.ps1 -Workers 2
 ```
 
 `verify-failures` expects deliberate Gradle failures; the default `test` task excludes `negative` and `guard` tags.

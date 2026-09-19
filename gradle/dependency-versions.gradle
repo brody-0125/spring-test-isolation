@@ -9,6 +9,7 @@ ext.versions = [
         junitPlatform    : '1.12.2',
         postgresqlJdbc   : '42.7.7',
         mysqlJdbc        : '9.1.0',
+        oracleJdbc       : '23.5.0.24.07',
         jedis            : '5.2.0',
         flyway           : '10.22.0',
         smartContext     : '1.0',
@@ -21,6 +22,7 @@ ext.versions = [
 ext.containerImages = [
         postgres : 'postgres:16.9-alpine',
         mysql    : 'mysql:8.4.5',
+        oracle   : 'gvenzl/oracle-xe:21-slim-faststart',
         redis    : 'redis:7.4.4-alpine',
 ]
 

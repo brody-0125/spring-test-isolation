@@ -18,6 +18,7 @@ public abstract class Containers implements BuildService<Containers.Parameters>,
         Property<String> getCacheBackend();
         Property<String> getPostgresImage();
         Property<String> getMysqlImage();
+        Property<String> getOracleImage();
         Property<String> getRedisImage();
         Property<Integer> getRedisLogicalDatabases();
         Property<Integer> getMaxCacheSlots();
@@ -39,6 +40,7 @@ public abstract class Containers implements BuildService<Containers.Parameters>,
             InfrastructureConfiguration configuration = InfrastructureConfiguration.resolve(
                     getParameters().getPostgresImage(),
                     getParameters().getMysqlImage(),
+                    getParameters().getOracleImage(),
                     getParameters().getRedisImage(),
                     getParameters().getRedisLogicalDatabases(),
                     getParameters().getMaxCacheSlots());

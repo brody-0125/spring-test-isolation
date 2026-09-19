@@ -101,8 +101,8 @@ The Gradle Build Service writes a `connection.properties` file per build and pas
 |----------|---------|
 | `jdbc.backend` | JDBC isolation implementation (`postgresql` default). Registered in `JdbcWorkerBackends` / `JdbcInfrastructureProvider`. |
 | `cache.backend` | Cache isolation implementation (`redis` default). Registered in `CacheWorkerBackends` / `CacheInfrastructureProvider`. |
-| `jdbc` | Admin JDBC URL for creating and dropping per-worker databases (PostgreSQL today). |
-| `user`, `password` | Credentials for admin and worker JDBC connections. |
+| `jdbc` | Admin JDBC URL for creating and dropping per-worker databases or schema users. |
+| `user`, `password` | Admin JDBC credentials. PostgreSQL and MySQL workers reuse these; Oracle workers use a dedicated schema user. |
 | `redis.host`, `redis.port` | Shared cache server endpoint. |
 | `slots` | Maximum concurrent cache logical databases (file-backed slot reservation under the descriptor directory). |
 | `run` | Build-scoped run id (diagnostics). |
@@ -123,6 +123,7 @@ Optional consumer overrides (unset = plugin defaults from `dependency-versions.g
 |--------------|--------------|---------|
 | `postgresImage` | `jdbcBackend = 'postgresql'` | `postgres:16.9-alpine` |
 | `mysqlImage` | `jdbcBackend = 'mysql'` | `mysql:8.4.5` |
+| `oracleImage` | `jdbcBackend = 'oracle'` | `gvenzl/oracle-xe:21-slim-faststart` |
 | `redisImage` | `cacheBackend = 'redis'` | `redis:7.4.4-alpine` |
 | `redisLogicalDatabases` | `cacheBackend = 'redis'` | `256` |
 | `maxCacheSlots` | `cacheBackend = 'redis'` | `255` |
@@ -139,8 +140,15 @@ One Gradle build uses a single shared Build Service and one `jdbc.backend` / `ca
 |---------|-----------------|----------------------|--------------|
 | `postgresql` (default) | `postgres:16.9-alpine` | `./scripts/verify.ps1` | `build/evidence/workers-*-negative-False.log` |
 | `mysql` | `mysql:8.4.5` | `./scripts/verify-mysql.ps1` | `build/evidence/mysql-workers-*.log` |
+| `oracle` | `gvenzl/oracle-xe:21-slim-faststart` | `./scripts/verify-oracle.ps1` | `build/evidence/oracle-workers-*.log` |
 
 MySQL coverage includes per-worker database create/drop, `WorkerStore.reset()`, Flyway smoke, storage reset smoke, and the connection guard negative fixture. Workflow fixtures remain PostgreSQL-only.
+
+Oracle workers share one PDB (`xepdb1`). Each worker gets `CREATE USER` / `DROP USER CASCADE` (schema/user isolation). Admin JDBC uses `SYSTEM`; Spring and worker JDBC use that schema user. Teardown kills leftover sessions, then drops the user — not the CDB or PDB. This is weaker than PDB-per-worker: SGA and the PDB are shared. XE PDB count stays at the image default.
+
+Oracle coverage matches the MySQL smoke set (allocation, Flyway, reset, connection guard). Workflow fixtures remain PostgreSQL-only. Default GitHub Actions `verify.yml` does not start this image; run `scripts/verify-oracle.ps1` (or `.sh`) locally.
+
+On 2026-09-18, `./scripts/verify-oracle.ps1 -Workers 2` PASS on Amazon Corretto 17.0.20, Gradle 8.14.3, Docker Desktop Linux engine. Local image size for `gvenzl/oracle-xe:21-slim-faststart` was 1.14 GiB (`docker image inspect`). A warm-image run finished in about two minutes; the first start after pull is longer.
 
 ## Gradle configuration cache
 

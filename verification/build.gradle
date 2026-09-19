@@ -11,6 +11,8 @@ isolatedTests {
     jdbcBackend = jdbcBackendName
     if (jdbcBackendName == 'mysql') {
         mysqlImage = rootProject.containerImages.mysql
+    } else if (jdbcBackendName == 'oracle') {
+        oracleImage = rootProject.containerImages.oracle
     } else {
         postgresImage = rootProject.containerImages.postgres
     }

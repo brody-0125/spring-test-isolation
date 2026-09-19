@@ -10,6 +10,7 @@ public final class InfrastructureProviders {
     static {
         registerJdbc(new PostgreSqlJdbcInfrastructureProvider());
         registerJdbc(new MySqlJdbcInfrastructureProvider());
+        registerJdbc(new OracleJdbcInfrastructureProvider());
         registerCache(new RedisCacheInfrastructureProvider());
     }
 
