@@ -45,7 +45,6 @@ public final class WorkerStore implements AutoCloseable {
         }
         return instance;
     }
-    WorkerStore(Path file) throws Exception { this(file, new Properties()); }
     WorkerStore(Path file, Properties overlay) throws Exception {
         descriptor = new Properties();
         try (var in = Files.newInputStream(file)) { descriptor.load(in); }

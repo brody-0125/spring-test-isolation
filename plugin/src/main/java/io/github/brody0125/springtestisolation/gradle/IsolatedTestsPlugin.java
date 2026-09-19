@@ -7,7 +7,6 @@ import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.junitplatform.JUnitPlatformOptions;
 import org.gradle.api.tasks.testing.testng.TestNGOptions;
 import org.gradle.process.CommandLineArgumentProvider;
-import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureOverrides;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureProviders;
 import java.util.List;
 
@@ -65,6 +64,11 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
         if (!options.getSuiteXmlFiles().isEmpty())
             throw new GradleException("TestNG suite XML is unsupported with worker isolation");
     }
+    static void validateSlots(Integer slots) {
+        if (slots != null && (slots < 1 || slots > 255)) {
+            throw new GradleException("maxCacheSlots must be between 1 and 255");
+        }
+    }
     public abstract static class Options {
         public abstract Property<Integer> getWorkers();
         public abstract Property<String> getJdbcBackend();
@@ -114,7 +118,7 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
             try {
                 InfrastructureProviders.jdbc(options.getJdbcBackend().get());
                 InfrastructureProviders.cache(options.getCacheBackend().get());
-                InfrastructureOverrides.validate(options);
+                validateSlots(options.getMaxCacheSlots().getOrNull());
             } catch (IllegalArgumentException e) {
                 throw new GradleException(e.getMessage(), e);
             }
