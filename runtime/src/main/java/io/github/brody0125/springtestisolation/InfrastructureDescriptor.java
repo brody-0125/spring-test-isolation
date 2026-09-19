@@ -1,6 +1,6 @@
 package io.github.brody0125.springtestisolation;
 
-/** Keys in the build-owned connection descriptor (see VERIFICATION.md). */
+/** Keys in the build-owned connection descriptor. */
 public final class InfrastructureDescriptor {
     public static final String JDBC_BACKEND = "jdbc.backend";
     public static final String CACHE_BACKEND = "cache.backend";
@@ -14,6 +14,7 @@ public final class InfrastructureDescriptor {
 
     public static final String DEFAULT_JDBC_BACKEND = "postgresql";
     public static final String DEFAULT_CACHE_BACKEND = "redis";
+    public static final String NONE_CACHE_BACKEND = "none";
 
     private InfrastructureDescriptor() {}
 }

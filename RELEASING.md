@@ -4,7 +4,6 @@ This document describes how to cut a **1.0.0** (or later) release from `main`.
 
 ## Preconditions
 
-- [VERIFICATION.md](VERIFICATION.md) reflects the version matrix you are shipping.
 - On `main`, run the verification scripts listed in [README.md](README.md) and record logs under `build/evidence/` when publishing release notes.
 - [CHANGELOG.md](CHANGELOG.md) contains a section for the target version with the release date filled in.
 

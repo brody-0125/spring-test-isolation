@@ -1,4 +1,4 @@
-// Single version matrix for VERIFICATION.md, runtime, plugin SPI, and verification fixtures.
+// Single version matrix for runtime, plugin SPI, and verification fixtures.
 // Bump here when re-verifying a new stack; keep container image tags aligned with evidence logs.
 ext.versions = [
         springBoot       : '3.5.1',

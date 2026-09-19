@@ -31,10 +31,13 @@ public final class WorkerStore implements AutoCloseable {
     public static synchronized void poison(Throwable cause) { if (poison == null) poison = cause; }
     /** Registers a shutdown hook only after allocation succeeds; failed construction keeps the slot file until build end. */
     public static synchronized WorkerStore get() {
+        return get(new Properties());
+    }
+    public static synchronized WorkerStore get(Properties overlay) {
         healthy();
         if (instance == null) {
             try { instance = new WorkerStore(Path.of(Objects.requireNonNull(
-                    System.getProperty("springtestisolation.descriptor"), "Run using the spring-test-isolation Gradle plugin"))); }
+                    System.getProperty("springtestisolation.descriptor"), "Run using the spring-test-isolation Gradle plugin")), overlay); }
             catch (Exception e) { poison(e); throw new IllegalStateException("Cannot allocate worker storage", e); }
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try { instance.close(); } catch (Exception e) { System.err.println("Worker storage cleanup failed: " + e); }
@@ -42,9 +45,21 @@ public final class WorkerStore implements AutoCloseable {
         }
         return instance;
     }
-    WorkerStore(Path file) throws Exception {
+    WorkerStore(Path file, Properties overlay) throws Exception {
         descriptor = new Properties();
         try (var in = Files.newInputStream(file)) { descriptor.load(in); }
+        copyIfBlank(descriptor, InfrastructureDescriptor.JDBC_URL, System.getProperty("spring.datasource.url"));
+        copyIfBlank(descriptor, InfrastructureDescriptor.JDBC_USER, System.getProperty("spring.datasource.username"));
+        copyIfBlank(descriptor, InfrastructureDescriptor.JDBC_PASSWORD, System.getProperty("spring.datasource.password"));
+        copyIfBlank(descriptor, InfrastructureDescriptor.REDIS_HOST, System.getProperty("spring.data.redis.host"));
+        copyIfBlank(descriptor, InfrastructureDescriptor.REDIS_PORT, System.getProperty("spring.data.redis.port"));
+        for (String name : overlay.stringPropertyNames()) {
+            descriptor.setProperty(name, overlay.getProperty(name));
+        }
+        if (blank(descriptor.getProperty(InfrastructureDescriptor.JDBC_URL))) {
+            throw new IllegalStateException(
+                    "spring.datasource.url is required; spring-test-isolation attaches to consumer JDBC and does not start a database");
+        }
         jdbcBackend = JdbcWorkerBackends.resolve(descriptor);
         cacheBackend = CacheWorkerBackends.resolve(descriptor);
         int slot = 0;
@@ -125,4 +140,9 @@ public final class WorkerStore implements AutoCloseable {
         catch (Exception e) { failure = combineCleanupFailures(failure, e); }
         if (failure != null) throw failure;
     }
+    private static void copyIfBlank(Properties target, String key, String value) {
+        if (!blank(target.getProperty(key)) || blank(value)) return;
+        target.setProperty(key, value);
+    }
+    private static boolean blank(String value) { return value == null || value.isBlank(); }
 }

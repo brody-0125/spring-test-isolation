@@ -26,6 +26,12 @@ class BackendRegistryTest {
         assertEquals("oracle", JdbcWorkerBackends.resolve(descriptor).id());
     }
 
+    @Test void noneCacheBackendResolves() {
+        var descriptor = new Properties();
+        descriptor.setProperty(InfrastructureDescriptor.CACHE_BACKEND, "none");
+        assertEquals("none", CacheWorkerBackends.resolve(descriptor).id());
+    }
+
     @Test void unknownJdbcBackendFailsFast() {
         var descriptor = new Properties();
         descriptor.setProperty(InfrastructureDescriptor.JDBC_BACKEND, "mssql");

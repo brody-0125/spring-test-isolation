@@ -12,9 +12,10 @@ class WorkerRecoveryTest {
         try (var in = Files.newInputStream(Path.of(System.getProperty("springtestisolation.descriptor")))) {
             properties.load(in);
         }
-        String adminUser = properties.getProperty("user");
-        String adminPassword = properties.getProperty("password");
-        String jdbc = properties.getProperty("jdbc");
+        String adminUser = System.getProperty("spring.datasource.username");
+        String adminPassword = System.getProperty("spring.datasource.password");
+        String jdbc = System.getProperty("spring.datasource.url");
+        if (jdbc == null || jdbc.isBlank()) throw new IllegalStateException("spring.datasource.url is required");
         String limitedUser = "ptk_slotfail_" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 12);
         String database = jdbc.substring(jdbc.lastIndexOf('/') + 1);
         int query = database.indexOf('?');
@@ -74,7 +75,10 @@ class WorkerRecoveryTest {
             String output = probe("allocation-failure", 1, descriptor.toString());
             var created = Pattern.compile("PTK database-created (\\w+)").matcher(output);
             assertTrue(created.find(), "Failure must happen after PostgreSQL allocation: " + output);
-            try (var connection = java.sql.DriverManager.getConnection(properties.getProperty("jdbc"), properties.getProperty("user"), properties.getProperty("password"));
+            try (var connection = java.sql.DriverManager.getConnection(
+                    System.getProperty("spring.datasource.url"),
+                    System.getProperty("spring.datasource.username"),
+                    System.getProperty("spring.datasource.password"));
                  var statement = connection.prepareStatement("SELECT count(*) FROM pg_database WHERE datname=?")) {
                 statement.setString(1, created.group(1));
                 try (var result = statement.executeQuery()) { assertTrue(result.next()); assertEquals(0, result.getInt(1), "Partially allocated database leaked"); }
@@ -91,6 +95,11 @@ class WorkerRecoveryTest {
         Process child = new ProcessBuilder(Path.of(System.getProperty("java.home"), "bin", "java").toString(),
                 "-cp", System.getProperty("fixture.classpath"),
                 "-Dspringtestisolation.descriptor=" + descriptor,
+                "-Dspring.datasource.url=" + System.getProperty("spring.datasource.url", ""),
+                "-Dspring.datasource.username=" + System.getProperty("spring.datasource.username", ""),
+                "-Dspring.datasource.password=" + System.getProperty("spring.datasource.password", ""),
+                "-Dspring.data.redis.host=" + System.getProperty("spring.data.redis.host", ""),
+                "-Dspring.data.redis.port=" + System.getProperty("spring.data.redis.port", ""),
                 "-Dorg.gradle.test.worker=probe-" + mode, WorkerProbe.class.getName(), mode)
                 .redirectErrorStream(true).redirectOutput(log.toFile()).start();
         try {

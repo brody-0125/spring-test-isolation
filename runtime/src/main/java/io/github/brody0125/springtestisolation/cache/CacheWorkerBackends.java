@@ -10,6 +10,7 @@ public final class CacheWorkerBackends {
 
     static {
         register(new RedisCacheWorkerBackend());
+        register(new NoneCacheWorkerBackend());
     }
 
     private CacheWorkerBackends() {}

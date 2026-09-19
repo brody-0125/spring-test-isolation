@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** The Gradle plugin no longer starts PostgreSQL or Redis. It attaches to consumer `spring.datasource.url` / `username` / `password` (required) and to Redis only when `spring.data.redis.host` or `spring.data.redis.url` is set. `redis.connection.*` does not attach Redis. Image override DSL (`postgresImage`, `mysqlImage`, `oracleImage`, `redisImage`, `redisLogicalDatabases`) is ignored. 1.1.x remains the line that starts containers.
+
 ## [1.1.0] - 2026-09-19
 
 Minor release after **1.0.0**. Default `postgresql` + `redis` behavior is unchanged unless you opt into new backends or DSL overrides.
@@ -30,14 +34,14 @@ Minor release after **1.0.0**. Default `postgresql` + `redis` behavior is unchan
 
 ### Documentation
 
-- [CONTRACT.md](CONTRACT.md) and [VERIFICATION.md](VERIFICATION.md) document backend registration, descriptor properties, and override boundaries.
+- Backend registration, descriptor properties, and override boundaries.
 - Recorded configuration-cache PASS for `:runtime:test` and `:verification:test` with workers 1 and 2. The `plugin` included build is not claimed.
 - Test framework compatibility matrix for JUnit, TestNG, and Kotest (closes spike in issue #11).
 - Wontfix decision for Redis Cluster and Sentinel in test isolation ([docs/redis-cluster-sentinel-decision.md](docs/redis-cluster-sentinel-decision.md)).
 
 ## [1.0.0] - 2026-09-17
 
-First stable release of Spring Test Isolation for the verified version matrix in [VERIFICATION.md](VERIFICATION.md).
+First stable release of Spring Test Isolation.
 
 ### Added
 
@@ -48,7 +52,7 @@ First stable release of Spring Test Isolation for the verified version matrix in
 - Verification module, PowerShell verification scripts (`verify.ps1`, `verify-failures.ps1`, `verify-workflow.ps1`, `verify-multimodule.ps1`, `verify-config-cache.ps1`), and multimodule `verification-peer` fixtures.
 - Negative guards for concurrent JUnit execution, missing listeners, wrong connections, initialization failures, cleanup failures, `@Nested`, `@ContextHierarchy`, and `@Lazy` bypass DataSources.
 - Flyway smoke fixture on worker databases; worker recovery and partial-allocation rollback probes.
-- [CONTRIBUTING.md](CONTRIBUTING.md) and [CONTRACT.md](CONTRACT.md) execution contract.
+- [CONTRIBUTING.md](CONTRIBUTING.md) contribution guide.
 
 ### Changed
 

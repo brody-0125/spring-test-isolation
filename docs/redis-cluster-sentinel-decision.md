@@ -6,7 +6,7 @@
 
 ## Context
 
-The library shares one Redis container per Gradle build and gives each worker its own logical database index, ACL user, key/channel namespace, and `FLUSHDB` reset path (`CONTRACT.md` C2, `WorkerStore`, `RedisCacheWorkerBackend`). Spring apps are verified against **standalone** Lettuce; `ConnectionVerifier` rejects Cluster and Sentinel `LettuceConnectionFactory` configurations.
+The library shares one Redis server per Gradle build and gives each worker its own logical database index, ACL user, key/channel namespace, and `FLUSHDB` reset path (`WorkerStore`, `RedisCacheWorkerBackend`). Spring apps are verified against **standalone** Lettuce; `ConnectionVerifier` rejects Cluster and Sentinel `LettuceConnectionFactory` configurations.
 
 ## Can the current model map to Cluster?
 
@@ -40,13 +40,12 @@ Production HA (Cluster/Sentinel) remains an application deployment concern. Cons
 | Redis Cluster | **Wontfix** | Conflicts with per-worker logical DB + verified reset path; would be a new cache backend and contract, not an extension of `cache.backend=redis`. |
 | Redis Sentinel | **Wontfix** | Failover vs fixed Build Service descriptor; no test-isolation benefit for this use case. |
 
-**CONTRACT citation:** Scope in `CONTRACT.md` — “standalone Redis with Spring Data Redis Lettuce by default.” C2 requires dedicated storage and fixed connections per worker; Cluster/Sentinel do not fit the implemented standalone model without a separate brief and verification matrix.
+Standalone Redis with Spring Data Redis Lettuce is the isolation model: dedicated storage and fixed connections per worker. Cluster/Sentinel do not fit that without a separate brief.
 
-**Follow-up issues:** None. Implement would require a new isolation design (e.g. prefix-only on cluster without logical DB), new providers, and a full VERIFICATION pass — intentionally out of scope for 1.x.
+**Follow-up issues:** None. Implement would require a new isolation design (e.g. prefix-only on cluster without logical DB), new providers, and a full verification pass — intentionally out of scope for 1.x.
 
 ## Evidence inspected
 
 - `runtime/.../RedisCacheWorkerBackend.java` — ACL provisioning, `FLUSHDB`, Cluster/Sentinel rejection in `verifyConnectionFactory`
 - `runtime/.../WorkerStore.java` — `select(redisDatabase)`, fixed host/port from descriptor
-- `CONTRACT.md` C2, Scope
-- `README.md`, `VERIFICATION.md` limitation lists
+- `README.md` limitation lists

@@ -9,17 +9,9 @@ def jdbcBackendProperty = providers.gradleProperty('jdbcBackend').orElse('postgr
 isolatedTests {
     workers = providers.gradleProperty('workers').map { it.toInteger() }.orElse(2)
     jdbcBackend = jdbcBackendName
-    if (jdbcBackendName == 'mysql') {
-        mysqlImage = rootProject.containerImages.mysql
-    } else if (jdbcBackendName == 'oracle') {
-        oracleImage = rootProject.containerImages.oracle
-    } else {
-        postgresImage = rootProject.containerImages.postgres
-    }
-    redisImage = rootProject.containerImages.redis
-    redisLogicalDatabases = rootProject.cacheInfrastructure.redisLogicalDatabases.toInteger()
     maxCacheSlots = rootProject.cacheInfrastructure.maxWorkerSlots.toInteger()
 }
+io.github.brody0125.springtestisolation.gradle.ConsumerInfrastructure.install(project)
 tasks.withType(Test).configureEach {
     systemProperty 'jdbc.backend', jdbcBackendProperty
 }
