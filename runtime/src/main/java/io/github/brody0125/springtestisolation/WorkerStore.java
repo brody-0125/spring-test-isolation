@@ -53,10 +53,8 @@ public final class WorkerStore implements AutoCloseable {
         copyIfBlank(descriptor, InfrastructureDescriptor.JDBC_PASSWORD, System.getProperty("spring.datasource.password"));
         copyIfBlank(descriptor, InfrastructureDescriptor.REDIS_HOST, System.getProperty("spring.data.redis.host"));
         copyIfBlank(descriptor, InfrastructureDescriptor.REDIS_PORT, System.getProperty("spring.data.redis.port"));
-        if (overlay != null) {
-            for (String name : overlay.stringPropertyNames()) {
-                descriptor.setProperty(name, overlay.getProperty(name));
-            }
+        for (String name : overlay.stringPropertyNames()) {
+            descriptor.setProperty(name, overlay.getProperty(name));
         }
         if (blank(descriptor.getProperty(InfrastructureDescriptor.JDBC_URL))) {
             throw new IllegalStateException(

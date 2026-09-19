@@ -7,7 +7,7 @@ import org.gradle.api.services.BuildServiceParameters;
 import java.nio.file.*;
 import java.util.*;
 
-/** Build-owned descriptor directory. Does not start containers. */
+/** Build-owned descriptor directory. */
 public abstract class Containers implements BuildService<Containers.Parameters>, AutoCloseable {
     public interface Parameters extends BuildServiceParameters {
         Property<String> getJdbcBackend();

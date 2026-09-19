@@ -1,13 +1,12 @@
 package io.github.brody0125.springtestisolation.cache;
 
+import io.github.brody0125.springtestisolation.InfrastructureDescriptor;
 import io.github.brody0125.springtestisolation.WorkerStore;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 /** No cache server. JDBC-only suites must not require Redis. */
 public final class NoneCacheWorkerBackend implements CacheWorkerBackend {
-    public static final String ID = "none";
-
-    @Override public String id() { return ID; }
+    @Override public String id() { return InfrastructureDescriptor.NONE_CACHE_BACKEND; }
 
     @Override public void provisionWorker(WorkerStore store, int logicalDatabase, String workerUser, String workerPassword) {}
 

@@ -24,30 +24,22 @@ public final class IsolationCustomizerFactory implements ContextCustomizerFactor
         if (user != null) overlay.setProperty(InfrastructureDescriptor.JDBC_USER, user);
         String password = env.getProperty("spring.datasource.password");
         if (password != null) overlay.setProperty(InfrastructureDescriptor.JDBC_PASSWORD, password);
-        if (redisClientEnabled(env)) {
-            overlay.setProperty(InfrastructureDescriptor.CACHE_BACKEND, InfrastructureDescriptor.DEFAULT_CACHE_BACKEND);
-            applyRedis(env, overlay);
-        } else {
-            overlay.setProperty(InfrastructureDescriptor.CACHE_BACKEND, InfrastructureDescriptor.NONE_CACHE_BACKEND);
-        }
-        return overlay;
-    }
-
-    static boolean redisClientEnabled(Environment env) {
-        return notBlank(env.getProperty("spring.data.redis.host")) || notBlank(env.getProperty("spring.data.redis.url"));
-    }
-
-    private static void applyRedis(Environment env, Properties overlay) {
         String redisUrl = env.getProperty("spring.data.redis.url");
+        String redisHost = env.getProperty("spring.data.redis.host");
+        if ((redisUrl == null || redisUrl.isBlank()) && (redisHost == null || redisHost.isBlank())) {
+            overlay.setProperty(InfrastructureDescriptor.CACHE_BACKEND, InfrastructureDescriptor.NONE_CACHE_BACKEND);
+            return overlay;
+        }
+        overlay.setProperty(InfrastructureDescriptor.CACHE_BACKEND, InfrastructureDescriptor.DEFAULT_CACHE_BACKEND);
         String host;
         String port;
-        if (notBlank(redisUrl)) {
+        if (redisUrl != null && !redisUrl.isBlank()) {
             URI uri = URI.create(redisUrl);
             host = uri.getHost();
             int parsed = uri.getPort();
             port = parsed > 0 ? Integer.toString(parsed) : env.getProperty("spring.data.redis.port", "6379");
         } else {
-            host = env.getProperty("spring.data.redis.host");
+            host = redisHost;
             port = env.getProperty("spring.data.redis.port", "6379");
         }
         if (host == null || host.isBlank()) {
@@ -55,10 +47,7 @@ public final class IsolationCustomizerFactory implements ContextCustomizerFactor
         }
         overlay.setProperty(InfrastructureDescriptor.REDIS_HOST, host);
         overlay.setProperty(InfrastructureDescriptor.REDIS_PORT, port);
-    }
-
-    private static boolean notBlank(String value) {
-        return value != null && !value.isBlank();
+        return overlay;
     }
 
     static final class IsolationCustomizer implements ContextCustomizer {

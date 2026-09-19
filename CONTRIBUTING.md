@@ -6,9 +6,8 @@ Release versioning and tagging are described in [RELEASING.md](RELEASING.md). Us
 
 ## Before you open a PR
 
-1. Read [CONTRACT.md](CONTRACT.md) and [VERIFICATION.md](VERIFICATION.md) for runtime guarantees and evidence requirements.
-2. Run the checks that match your change (at minimum `./gradlew :runtime:test :verification:test` when Docker is available).
-3. For behavior or isolation changes, run the relevant scripts in [README.md](README.md) (`scripts/verify.ps1`, `scripts/verify-failures.ps1`, etc.) and keep claims within what those runs prove.
+1. Run the checks that match your change (at minimum `./gradlew :runtime:test :verification:test` when Docker is available).
+2. For behavior or isolation changes, run the relevant scripts in [README.md](README.md) (`scripts/verify.ps1`, `scripts/verify-failures.ps1`, etc.) and keep claims within what those runs prove.
 
 ## Branch names
 
@@ -70,7 +69,7 @@ docs: document unsupported @Nested and @ContextHierarchy
 
 - Keep PRs focused; split unrelated changes.
 - Summarize **why** in the PR description and point to verification evidence (commands run, log paths under `build/evidence/` when applicable).
-- Do not claim compatibility beyond what [VERIFICATION.md](VERIFICATION.md) supports.
+- Do not claim compatibility beyond what the verification scripts you ran actually prove.
 
 ## Agent and editor conventions
 

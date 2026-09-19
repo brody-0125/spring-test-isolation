@@ -1,14 +1,13 @@
 # Spring Test Isolation
 
-**Version 1.1.0** (published) — Gradle plugin and runtime library for parallel Spring tests across worker JVMs with **per-worker** storage isolation.
+Gradle plugin and runtime for parallel Spring tests across worker JVMs with **per-worker** storage isolation.
 
-Unreleased 1.2.0 on this branch **attaches** to JDBC (and Redis when the app uses it) that the consumer already runs. It does not start containers. **1.1.x** is the line that starts PostgreSQL and Redis from the plugin.
+The plugin attaches to PostgreSQL the consumer already runs. Redis attaches only when `spring.data.redis.host` or `spring.data.redis.url` is set. It does not start containers. A Gradle Build Service owns the descriptor used for allocation, poison, and cleanup.
 
 | | |
 |---|---|
 | **License** | [MIT](LICENSE.md) — Copyright © 2026 Seokhyeon Kim |
 | **JDK** | 17 |
-| **Verified stack** | Spring Boot 3.5.1, JUnit Jupiter 5.12, Smart Context 1.0 — see [VERIFICATION.md](VERIFICATION.md) |
 | **Contributing** | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
 ## What it does
@@ -18,7 +17,7 @@ Unreleased 1.2.0 on this branch **attaches** to JDBC (and Redis when the app use
 - Reuses Spring contexts via TestContext; [spring-test-smart-context](https://github.com/seregamorph/spring-test-smart-context) orders classes and closes contexts after the last class in a configuration group.
 - Clears worker storage between classes (`TRUNCATE` / `FLUSHDB`), runs application `ClassBoundary` hooks, and **poisons** the worker on cleanup or policy failures.
 
-Unsupported: `@Nested` with its own context, `@ContextHierarchy`, Redis Cluster/Sentinel (wontfix for test isolation — [decision note](docs/redis-cluster-sentinel-decision.md), [VERIFICATION.md](VERIFICATION.md)). `@Nested` that inherits the enclosing class context is supported; nested classes share worker storage until the enclosing class ends. TestNG (`useTestNG()`), Kotest on JUnit Platform (`kotest-runner-junit5`), and the standalone Kotest Gradle plugin are classified in [Test framework compatibility](VERIFICATION.md#test-framework-compatibility).
+Unsupported: `@Nested` with its own context, `@ContextHierarchy`, Redis Cluster/Sentinel (wontfix for test isolation — [decision note](docs/redis-cluster-sentinel-decision.md)). `@Nested` that inherits the enclosing class context is supported; nested classes share worker storage until the enclosing class ends. Supported runners: JUnit Jupiter (default), TestNG (`useTestNG()`), Kotest on JUnit Platform (`kotest-runner-junit5`). The standalone Kotest Gradle plugin is unsupported.
 
 ## Repository layout
 
@@ -41,7 +40,7 @@ Publication uses [gradle.properties](gradle.properties) for the version. **Maven
 ./gradlew -p plugin publishToMavenLocal
 ```
 
-**Coordinates (1.1.0)**
+**Coordinates** (version in [gradle.properties](gradle.properties)):
 
 | | Value |
 |---|---|
@@ -79,8 +78,7 @@ isolatedTests {
     jdbcBackend = 'postgresql' // default
     cacheBackend = 'redis'     // default; Redis attaches only when the app enables it
     // maxCacheSlots = 255
-    // Image overrides (postgresImage, mysqlImage, oracleImage, redisImage, redisLogicalDatabases)
-    // are ignored: 1.2.0 does not start containers.
+    // postgresImage / mysqlImage / oracleImage / redisImage / redisLogicalDatabases are ignored
 }
 ```
 
@@ -95,7 +93,7 @@ spring.datasource.password=secret
 # spring.data.redis.port=6379
 ```
 
-This repository’s `verification/build.gradle` starts PostgreSQL and Redis with Testcontainers and injects those properties — that is consumer-owned infrastructure, not the plugin. 1.1.x image-override docs remain valid on the 1.1.x line.
+This repository’s `verification/build.gradle` is a full example: it starts PostgreSQL and Redis with Testcontainers and injects those properties.
 
 ## Application responsibilities
 
@@ -148,8 +146,6 @@ Keep `@DirtiesContext` when hooks cannot undo context mutations.
 | Document | Contents |
 |----------|----------|
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
-| [CONTRACT.md](CONTRACT.md) | Isolation contract (C1–C10) |
-| [VERIFICATION.md](VERIFICATION.md) | Tested versions and evidence |
 | [PUBLISHING.md](PUBLISHING.md) | Maven Central publication |
 | [RELEASING.md](RELEASING.md) | Tagging and GitHub Release steps |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, commits, PRs |
