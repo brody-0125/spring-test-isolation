@@ -142,6 +142,19 @@ One Gradle build uses a single shared Build Service and one `jdbc.backend` / `ca
 
 MySQL coverage includes per-worker database create/drop, `WorkerStore.reset()`, Flyway smoke, storage reset smoke, and the connection guard negative fixture. Workflow fixtures remain PostgreSQL-only.
 
+## Gradle configuration cache
+
+On 2026-09-18 we ran `scripts/verify-config-cache.ps1` on Amazon Corretto 17.0.9 and Gradle 8.14.3. Each run stored a configuration cache entry and recorded one shared infrastructure start and close.
+
+| Workers | Result | Local log |
+|---|---|---|
+| 1 | PASS | `build/evidence/config-cache-1.log` |
+| 2 | PASS | `build/evidence/config-cache-2.log` |
+
+This covers `:runtime:test` and `:verification:test` only. We do not claim configuration cache for the `plugin` included build.
+
+CI job `config-cache` on `ubuntu-latest` (Temurin 17) reruns `scripts/verify-config-cache.sh -Workers 2` as a regression gate. That job is not the Corretto evidence in the table.
+
 ## Remaining limitations
 
 - We tested the version combination above under the ClassBoundary and storage access contracts. Test other versions, operating systems, and large applications before adopting them.
@@ -149,7 +162,7 @@ MySQL coverage includes per-worker database create/drop, `WorkerStore.reset()`, 
 - Your ClassBoundary quiesce/reset/resume implementation must track and stop application threads, schedulers, and external clients. The runtime does not track that work for you.
 - Redis ACLs block FLUSHALL and channels outside the namespace. SELECT can still choose another logical database, so use trusted tests and the supported access paths.
 - Spring Session's Redis keyevent channels need integration beyond the current namespace contract. These fixtures cover application channels. We did not run Spring Session or Spring Modulith compatibility tests.
-- We have not verified or claimed support for Redis Cluster, `@ContextHierarchy`, `@Nested` classes that declare their own context, configuration cache, or remote workers in distributed CI. `@Nested` inherit-only support is covered by `DiscoveryTest` and `NestedInheritTest`; historical 2026-09-17 logs predate that fixture.
+- We have not verified or claimed support for Redis Cluster, `@ContextHierarchy`, `@Nested` classes that declare their own context, configuration cache of the `plugin` included build, or remote workers in distributed CI. `@Nested` inherit-only support is covered by `DiscoveryTest` and `NestedInheritTest`; historical 2026-09-17 logs predate that fixture.
 - TestNG native (`useTestNG()`, TestNG 7.10.2): Gradle rejects `parallel`, `threadCount` > 1, and suite XML. Smart Context `SmartDirtiesSuiteListener` orders classes.
 - Kotest on JUnit Platform (Kotest 5.9.1, Kotlin 1.9.25, `kotest-runner-junit5`): `scripts/verify.ps1` / `verify.sh` run `:verification:kotestSmoke`. Four specs share or split Spring configuration; the script requires worker storage writes, no overlapping spec bodies inside a worker, context reuse, and Smart Context auto-close. The plugin sets `kotest.framework.parallelism=1`. The Kotest Gradle plugin is not a separate runner.
 - We provide source code, the Gradle Wrapper, local publication definitions, and runnable fixtures. We have not published artifacts to a public registry.
