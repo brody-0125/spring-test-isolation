@@ -7,23 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-19
+
+Minor release after **1.0.0**. Default `postgresql` + `redis` behavior is unchanged unless you opt into new backends or DSL overrides.
+
 ### Added
 
-- Oracle JDBC worker backend (`jdbcBackend = 'oracle'`) with schema/user isolation and `scripts/verify-oracle`.
-- CI job `config-cache` runs `scripts/verify-config-cache.sh -Workers 2`.
+- Pluggable JDBC and cache backend SPI with `jdbcBackend` / `cacheBackend` on the `isolatedTests` extension; MySQL and Oracle JDBC backends alongside PostgreSQL; Redis cache backend.
+- Consumer DSL overrides for infrastructure images and Redis capacity (`postgresImage`, `mysqlImage`, `oracleImage`, `redisImage`, `redisLogicalDatabases`, `maxCacheSlots`).
+- Oracle JDBC worker backend with schema/user isolation and `scripts/verify-oracle`.
 - `@Nested` tests that inherit the enclosing class Spring context. Storage reset still runs at the enclosing class. `@Nested` classes that declare their own context and `@ContextHierarchy` stay rejected.
 - Native TestNG (`useTestNG()`) worker isolation: Smart Context suite ordering, sequential classes inside each worker, and a storage smoke fixture.
-- Kotest on JUnit Platform (`kotest-runner-junit5`): four specs covering worker storage, Smart Context eager close, and sequential execution inside each worker.
-- Gradle configuration fails when a TestNG task enables `parallel`, `threadCount` > 1, or suite XML.
+- Kotest on JUnit Platform (`kotest-runner-junit5`): specs covering worker storage, Smart Context eager close, and sequential execution inside each worker.
+- Spring Session Redis keyevent ACL verification fixtures and `verify-spring-session` scripts.
+- Bash verification scripts under `scripts/`; CI runs Docker verification on Linux. Job `config-cache` runs `scripts/verify-config-cache.sh -Workers 2`.
 
 ### Changed
 
+- Plugin fails fast when `jdbcBackend` or `cacheBackend` is unknown.
+- Gradle configuration fails when a TestNG task enables `parallel`, `threadCount` > 1, or suite XML.
 - JUnit Platform tasks set `kotest.framework.parallelism=1`.
 
 ### Documentation
 
+- [CONTRACT.md](CONTRACT.md) and [VERIFICATION.md](VERIFICATION.md) document backend registration, descriptor properties, and override boundaries.
 - Recorded configuration-cache PASS for `:runtime:test` and `:verification:test` with workers 1 and 2. The `plugin` included build is not claimed.
 - Test framework compatibility matrix for JUnit, TestNG, and Kotest (closes spike in issue #11).
+- Wontfix decision for Redis Cluster and Sentinel in test isolation ([docs/redis-cluster-sentinel-decision.md](docs/redis-cluster-sentinel-decision.md)).
 
 ## [1.0.0] - 2026-09-17
 
@@ -52,5 +62,6 @@ First stable release of Spring Test Isolation for the verified version matrix in
 - [RELEASING.md](RELEASING.md) documents the release and publication workflow.
 - [PUBLISHING.md](PUBLISHING.md) and Maven Central Gradle configuration (Vanniktech Maven Publish; plugin marker + runtime).
 
-[Unreleased]: https://github.com/brody-0125/spring-test-isolation/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/brody-0125/spring-test-isolation/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/brody-0125/spring-test-isolation/releases/tag/v1.1.0
 [1.0.0]: https://github.com/brody-0125/spring-test-isolation/releases/tag/v1.0.0
