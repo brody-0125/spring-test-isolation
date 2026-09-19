@@ -119,6 +119,7 @@ Keep `@DirtiesContext` when hooks cannot undo context mutations.
 ./scripts/verify-failures.sh
 ./scripts/verify-multimodule.sh
 ./scripts/verify-workflow.sh -Workers 2 -Runs 3
+./scripts/verify-spring-session.sh -Workers 2
 ./scripts/verify-config-cache.sh -Workers 2
 ./scripts/verify-oracle.sh -Workers 2
 ```
@@ -128,6 +129,7 @@ Keep `@DirtiesContext` when hooks cannot undo context mutations.
 ./scripts/verify-failures.ps1
 ./scripts/verify-multimodule.ps1
 ./scripts/verify-workflow.ps1 -Workers 2 -Runs 3
+./scripts/verify-spring-session.ps1 -Workers 2
 ./scripts/verify-config-cache.ps1 -Workers 2
 ./scripts/verify-oracle.ps1 -Workers 2
 ```

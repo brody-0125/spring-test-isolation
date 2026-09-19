@@ -10,7 +10,8 @@ public final class RedisCacheInfrastructureProvider implements CacheInfrastructu
 
     @Override public StartedInfrastructure start(InfrastructureConfiguration configuration) {
         GenericContainer<?> redis = new GenericContainer<>(configuration.redisImage()).withExposedPorts(6379)
-                .withCommand("redis-server", "--databases", Integer.toString(configuration.redisLogicalDatabases()));
+                .withCommand("redis-server", "--databases", Integer.toString(configuration.redisLogicalDatabases()),
+                        "--notify-keyspace-events", "Egx");
         redis.start();
         return new StartedInfrastructure(redis, redis.getContainerId(), descriptor -> {
             descriptor.setProperty("redis.host", redis.getHost());
