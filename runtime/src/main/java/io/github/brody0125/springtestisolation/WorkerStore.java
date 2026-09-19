@@ -81,6 +81,7 @@ public final class WorkerStore implements AutoCloseable {
     public String redisHost() { return descriptor.getProperty(InfrastructureDescriptor.REDIS_HOST); }
     public int redisPort() { return Integer.parseInt(descriptor.getProperty(InfrastructureDescriptor.REDIS_PORT)); }
     public String channel(String logicalName) { return namespace + logicalName; }
+    public String redisKeyeventChannel(String event) { return "__keyevent@" + redisDatabase + "__:" + event; }
     /** Redis requires an exact ACL pattern grant for PSUBSCRIBE, even under a broader prefix grant. */
     public String channelPattern(String logicalPattern) {
         String pattern = channel(logicalPattern);

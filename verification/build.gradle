@@ -28,6 +28,7 @@ test {
         excludeTags 'negative', 'guard'
         includeEngines 'junit-jupiter'
     }
+    exclude '**/session/**'
     systemProperty 'fixture.classpath', sourceSets.test.runtimeClasspath.asPath
     maxHeapSize = '384m'
     testLogging { events 'passed', 'failed', 'skipped'; showStandardStreams = true }
@@ -38,6 +39,14 @@ tasks.register('workflowTest', Test) {
     classpath = sourceSets.test.runtimeClasspath
     include '**/workflow/Workflow*Test.class'
     systemProperty 'fixture.workflowPeers', providers.gradleProperty('workers').getOrElse('2')
+    maxHeapSize = '384m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+}
+tasks.register('sessionTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    include '**/session/Session*Test.class'
+    systemProperty 'fixture.sessionPeers', providers.gradleProperty('workers').getOrElse('2')
     maxHeapSize = '384m'
     testLogging { events 'passed', 'failed'; showStandardStreams = true }
 }

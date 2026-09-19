@@ -13,6 +13,7 @@ public final class RedisCacheWorkerBackend implements CacheWorkerBackend {
     @Override public void provisionWorker(WorkerStore store, int logicalDatabase, String workerUser, String workerPassword) throws Exception {
         try (Jedis admin = store.openAdminRedis()) {
             admin.aclSetUser(workerUser, "reset", "on", ">" + workerPassword, "~*", "&" + store.namespace + "*",
+                    "&" + store.redisKeyeventChannel("del"), "&" + store.redisKeyeventChannel("expired"),
                     "+@all", "-@admin", "-@dangerous", "+flushdb", "+keys", "-swapdb", "-move", "-copy",
                     "-script|flush", "-function|flush", "-function|delete", "-function|load");
         }
