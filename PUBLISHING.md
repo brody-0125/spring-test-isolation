@@ -25,11 +25,11 @@ pluginManagement {
 ```groovy
 plugins {
     id 'java'
-    id 'io.github.brody-0125.spring-test-isolation' version '1.0.0'
+    id 'io.github.brody-0125.spring-test-isolation' version '1.1.0'
 }
 repositories { mavenCentral() }
 dependencies {
-    testImplementation 'io.github.brody-0125:spring-test-isolation-runtime:1.0.0'
+    testImplementation 'io.github.brody-0125:spring-test-isolation-runtime:1.1.0'
     // …
 }
 ```
@@ -58,11 +58,11 @@ Use `mavenLocal()` in the consumer instead of `mavenCentral()` while testing.
 
 ## Publish a release
 
-Pushing an annotated version tag triggers [.github/workflows/publish-maven-central.yml](.github/workflows/publish-maven-central.yml). The workflow strips the `v` prefix and passes `-Pversion=…` to Gradle (for example tag `v1.0.0` → version `1.0.0`).
+Pushing an annotated version tag triggers [.github/workflows/publish-maven-central.yml](.github/workflows/publish-maven-central.yml). The workflow strips the `v` prefix and passes `-Pversion=…` to Gradle (for example tag `v1.1.0` → version `1.1.0`).
 
 ```powershell
-git tag -a v1.0.0 -m "Release 1.0.0"
-git push origin v1.0.0
+git tag -a v1.1.0 -m "Release 1.1.0"
+git push origin v1.1.0
 ```
 
 Signing uses in-memory key properties (`signingInMemoryKey` / `signingInMemoryKeyPassword`) from those secrets. For ad-hoc local publishes, set the same properties via `ORG_GRADLE_PROJECT_*` environment variables or `~/.gradle/gradle.properties` — never commit credentials.

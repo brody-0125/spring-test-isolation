@@ -1,6 +1,6 @@
 # Spring Test Isolation
 
-**Version 1.0.0** — Gradle plugin and runtime library for parallel Spring tests across worker JVMs with shared PostgreSQL and Redis containers and **per-worker** storage isolation.
+**Version 1.1.0** — Gradle plugin and runtime library for parallel Spring tests across worker JVMs with shared PostgreSQL and Redis containers and **per-worker** storage isolation.
 
 | | |
 |---|---|
@@ -39,12 +39,12 @@ Publication uses [gradle.properties](gradle.properties) for the version. **Maven
 ./gradlew -p plugin publishToMavenLocal
 ```
 
-**Coordinates (1.0.0)**
+**Coordinates (1.1.0)**
 
 | | Value |
 |---|---|
 | Plugin ID | `io.github.brody-0125.spring-test-isolation` |
-| Runtime | `io.github.brody-0125:spring-test-isolation-runtime:1.0.0` |
+| Runtime | `io.github.brody-0125:spring-test-isolation-runtime:1.1.0` |
 | Java package | `io.github.brody0125.springtestisolation` |
 | Gradle extension | `isolatedTests` |
 
@@ -61,11 +61,11 @@ pluginManagement {
 ```groovy
 plugins {
     id 'java'
-    id 'io.github.brody-0125.spring-test-isolation' version '1.0.0'
+    id 'io.github.brody-0125.spring-test-isolation' version '1.1.0'
 }
 repositories { mavenLocal(); mavenCentral() }
 dependencies {
-    testImplementation 'io.github.brody-0125:spring-test-isolation-runtime:1.0.0'
+    testImplementation 'io.github.brody-0125:spring-test-isolation-runtime:1.1.0'
     testImplementation platform('org.springframework.boot:spring-boot-dependencies:3.5.1')
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
