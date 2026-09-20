@@ -2,7 +2,11 @@ pluginManagement {
     plugins {
         id 'com.vanniktech.maven.publish' version '0.30.0'
     }
-    includeBuild('plugin')
+    includeBuild('plugin') {
+        dependencySubstitution {
+            substitute(module('io.github.brody-0125:spring-test-isolation-runtime')).using(project(':runtime'))
+        }
+    }
     repositories { gradlePluginPortal(); mavenCentral() }
 }
 rootProject.name = 'spring-test-isolation'

@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.UUID;
 
-/** Build-owned worker descriptor file for Maven Surefire (Gradle uses the same shape in {@code Containers}). */
+/** Build-owned worker descriptor file shared by the Gradle and Maven integrations. */
 public final class WorkerDescriptorFiles {
     private WorkerDescriptorFiles() {}
 

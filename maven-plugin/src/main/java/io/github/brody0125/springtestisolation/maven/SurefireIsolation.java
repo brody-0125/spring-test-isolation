@@ -1,17 +1,16 @@
 package io.github.brody0125.springtestisolation.maven;
 
+import io.github.brody0125.springtestisolation.WorkerFrameworkSettings;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 final class SurefireIsolation {
     static final String SUREFIRE_COORDINATE = "org.apache.maven.plugins:maven-surefire-plugin";
-    static final String ORDERER = "com.github.seregamorph.testsmartcontext.jupiter.SmartDirtiesClassOrderer";
 
     private SurefireIsolation() {}
 
-    static Plugin requireSurefire(MavenProject project) throws MojoExecutionException {
+    static Plugin requireSurefire(org.apache.maven.project.MavenProject project) throws MojoExecutionException {
         Plugin plugin = project.getPlugin(SUREFIRE_COORDINATE);
         if (plugin == null) {
             throw new MojoExecutionException(
@@ -48,10 +47,8 @@ final class SurefireIsolation {
         }
         setChildValue(systemProperties, "springtestisolation.descriptor", descriptorPath);
         setChildValue(systemProperties, "springtestisolation.task", taskName);
-        setChildValue(systemProperties, "junit.jupiter.execution.parallel.enabled", "false");
-        setChildValue(systemProperties, "junit.jupiter.extensions.autodetection.enabled", "true");
-        setChildValue(systemProperties, "junit.jupiter.testclass.order.default", ORDERER);
-        setChildValue(systemProperties, "kotest.framework.parallelism", "1");
+        WorkerFrameworkSettings.junitPlatformSystemProperties()
+                .forEach((key, value) -> setChildValue(systemProperties, key, value));
         surefire.setConfiguration(config);
     }
 
