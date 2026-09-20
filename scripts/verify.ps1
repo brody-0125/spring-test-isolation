@@ -4,7 +4,6 @@ $ErrorActionPreference = 'Stop'
 $RepoRoot = Get-RepoRoot
 Push-Location $RepoRoot
 $gradlew = Resolve-GradleWrapper -Root $RepoRoot
-Publish-RuntimeToMavenLocal -Root $RepoRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     $task = @(if ($Negative) { ':verification:cleanupFailureTest' } else { ':runtime:test', ':verification:test' })

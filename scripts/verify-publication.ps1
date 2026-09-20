@@ -11,7 +11,7 @@ try {
     $code = $LASTEXITCODE
     if ($code -ne 0) { throw "Runtime publication failed; inspect $log" }
     $ErrorActionPreference = 'Continue'
-    & $gradlew -p plugin clean publishToMavenLocal validatePlugins --rerun-tasks --console=plain *> $log
+    & $gradlew :plugin:clean :plugin:publishToMavenLocal :plugin:validatePlugins --rerun-tasks --console=plain *> $log
     $code = $LASTEXITCODE
     $ErrorActionPreference = 'Stop'
     if ($code -ne 0) { throw "Plugin publication failed; inspect $log" }

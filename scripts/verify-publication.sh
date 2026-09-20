@@ -17,7 +17,7 @@ if [[ "$code" -ne 0 ]]; then
   exit 1
 fi
 set +e
-"$gradlew" -p plugin clean publishToMavenLocal validatePlugins --rerun-tasks --console=plain >"$log" 2>&1
+"$gradlew" :plugin:clean :plugin:publishToMavenLocal :plugin:validatePlugins --rerun-tasks --console=plain >"$log" 2>&1
 code=$?
 set -e
 if [[ "$code" -ne 0 ]]; then

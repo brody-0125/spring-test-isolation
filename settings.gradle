@@ -2,8 +2,7 @@ pluginManagement {
     plugins {
         id 'com.vanniktech.maven.publish' version '0.30.0'
     }
-    includeBuild('plugin')
     repositories { gradlePluginPortal(); mavenCentral() }
 }
 rootProject.name = 'spring-test-isolation'
-include 'runtime', 'maven-plugin', 'verification', 'verification-peer'
+include 'runtime', 'maven-plugin', 'plugin', 'verification', 'verification-peer'

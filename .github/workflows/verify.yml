@@ -21,11 +21,7 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - name: Runtime and plugin unit tests
-        run: |
-          VERSION=$(grep '^version=' gradle.properties | cut -d= -f2)
-          rm -rf "$HOME/.m2/repository/io/github/brody-0125/spring-test-isolation-runtime/$VERSION"
-          ./gradlew :runtime:clean :runtime:publishToMavenLocal --rerun-tasks
-          ./gradlew :runtime:test :maven-plugin:test :plugin:test :plugin:validatePlugins
+        run: ./gradlew :runtime:test :maven-plugin:test :plugin:test :plugin:validatePlugins
 
   integration:
     runs-on: ubuntu-latest
