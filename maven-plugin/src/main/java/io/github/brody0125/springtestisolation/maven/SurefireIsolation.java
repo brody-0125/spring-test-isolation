@@ -5,10 +5,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-/** Merges Surefire settings for worker-isolated forks. */
 final class SurefireIsolation {
     static final String SUREFIRE_COORDINATE = "org.apache.maven.plugins:maven-surefire-plugin";
     static final String ORDERER = "com.github.seregamorph.testsmartcontext.jupiter.SmartDirtiesClassOrderer";
@@ -40,35 +36,23 @@ final class SurefireIsolation {
         return forks;
     }
 
-    static void apply(MavenProject project, Plugin surefire, String descriptorPath, String taskName)
-            throws MojoExecutionException {
+    static void apply(Plugin surefire, String descriptorPath, String taskName) {
         Xpp3Dom config = configuration(surefire);
         setChildValue(config, "parallel", "none");
         setChildValue(config, "threadCount", "1");
         setChildValue(config, "perCoreThreadCount", "false");
-        Map<String, String> properties = requiredSystemProperties(descriptorPath, taskName);
         Xpp3Dom systemProperties = config.getChild("systemPropertyVariables");
         if (systemProperties == null) {
             systemProperties = new Xpp3Dom("systemPropertyVariables");
             config.addChild(systemProperties);
         }
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            setChildValue(systemProperties, entry.getKey(), entry.getValue());
-        }
+        setChildValue(systemProperties, "springtestisolation.descriptor", descriptorPath);
+        setChildValue(systemProperties, "springtestisolation.task", taskName);
+        setChildValue(systemProperties, "junit.jupiter.execution.parallel.enabled", "false");
+        setChildValue(systemProperties, "junit.jupiter.extensions.autodetection.enabled", "true");
+        setChildValue(systemProperties, "junit.jupiter.testclass.order.default", ORDERER);
+        setChildValue(systemProperties, "kotest.framework.parallelism", "1");
         surefire.setConfiguration(config);
-        project.getProperties().setProperty("springtestisolation.descriptor", descriptorPath);
-        project.getProperties().setProperty("springtestisolation.task", taskName);
-    }
-
-    static Map<String, String> requiredSystemProperties(String descriptorPath, String taskName) {
-        Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("springtestisolation.descriptor", descriptorPath);
-        properties.put("springtestisolation.task", taskName);
-        properties.put("junit.jupiter.execution.parallel.enabled", "false");
-        properties.put("junit.jupiter.extensions.autodetection.enabled", "true");
-        properties.put("junit.jupiter.testclass.order.default", ORDERER);
-        properties.put("kotest.framework.parallelism", "1");
-        return properties;
     }
 
     private static Xpp3Dom configuration(Plugin surefire) {

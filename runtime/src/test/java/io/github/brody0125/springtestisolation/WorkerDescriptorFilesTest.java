@@ -2,6 +2,7 @@ package io.github.brody0125.springtestisolation;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
 
@@ -10,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WorkerDescriptorFilesTest {
     @Test
-    void writesBaseDescriptorProperties() throws Exception {
+    void writesBaseDescriptorProperties() throws IOException {
         var directory = Files.createTempDirectory("ptk-descriptor");
         Properties properties = WorkerDescriptorFiles.baseProperties("postgresql", "redis", 4);
         var file = WorkerDescriptorFiles.write(directory, properties);

@@ -15,7 +15,6 @@
         <spring-boot.version>3.5.1</spring-boot.version>
         <spring-test-isolation.version>1.1.0</spring-test-isolation.version>
         <testcontainers.version>1.20.6</testcontainers.version>
-        <junit.version>5.12.2</junit.version>
         <smart-context.version>1.0</smart-context.version>
     </properties>
 

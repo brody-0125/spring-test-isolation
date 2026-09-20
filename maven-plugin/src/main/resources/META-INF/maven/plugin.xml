@@ -14,8 +14,6 @@
             <requiresProject>true</requiresProject>
             <implementation>io.github.brody0125.springtestisolation.maven.ConfigureMojo</implementation>
             <language>java</language>
-            <instantiationStrategy>per-lookup</instantiationStrategy>
-            <executionStrategy>once-per-session</executionStrategy>
             <threadSafe>true</threadSafe>
         </mojo>
     </mojos>

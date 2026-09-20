@@ -21,7 +21,7 @@ class SurefireIsolationTest {
     }
 
     @Test
-    void defaultsForkCountToOne() throws Exception {
+    void defaultsForkCountToOne() throws MojoExecutionException {
         Plugin plugin = new Plugin();
         plugin.setConfiguration(new Xpp3Dom("configuration"));
         assertEquals(1, SurefireIsolation.parseForkCount(plugin));

@@ -7,9 +7,13 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.UUID;
 
-/** Build-owned worker descriptor shared by Gradle and Maven integrations. */
+/** Build-owned worker descriptor file for Maven Surefire (Gradle uses the same shape in {@code Containers}). */
 public final class WorkerDescriptorFiles {
     private WorkerDescriptorFiles() {}
+
+    public static Path writeBase(Path directory, String jdbcBackend, String cacheBackend, int slots) throws IOException {
+        return write(directory, baseProperties(jdbcBackend, cacheBackend, slots));
+    }
 
     public static Properties baseProperties(String jdbcBackend, String cacheBackend, int slots) {
         if (slots < 1 || slots > 255) throw new IllegalArgumentException("maxCacheSlots must be between 1 and 255");
