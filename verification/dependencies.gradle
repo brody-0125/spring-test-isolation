@@ -1,4 +1,5 @@
 dependencies {
+    implementation project(':plugin')
     testImplementation project(':runtime')
     testImplementation "redis.clients:jedis:${versions.jedis}"
     testImplementation platform("org.springframework.boot:spring-boot-dependencies:${versions.springBoot}")
