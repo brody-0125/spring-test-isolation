@@ -24,9 +24,12 @@ match_count() {
 
 publish_runtime_to_maven_local() {
   local root="${1:-$(get_repo_root)}"
-  local gradlew
+  local gradlew version repo
   gradlew="$(resolve_gradlew "$root")"
-  (cd "$root" && "$gradlew" :runtime:publishToMavenLocal --console=plain -q)
+  version="$(grep '^version=' "$root/gradle.properties" | cut -d= -f2)"
+  repo="$(m2_repository)/io/github/brody-0125/spring-test-isolation-runtime/$version"
+  rm -rf "$repo"
+  (cd "$root" && "$gradlew" :runtime:clean :runtime:publishToMavenLocal --rerun-tasks --console=plain -q)
 }
 
 m2_repository() {
