@@ -42,11 +42,27 @@ public final class InfrastructureVersions {
     }
 }
 sourceSets.main.java.srcDir infrastructureVersionsDir
-tasks.named('compileJava') { dependsOn 'generateInfrastructureVersions' }
+tasks.named('compileJava') {
+    dependsOn 'generateInfrastructureVersions'
+    if (hostRuntime != null) {
+        dependsOn(hostRuntime.tasks.named('jar'))
+    } else if (monorepoRuntime) {
+        dependsOn(':runtime:jar')
+    }
+}
 tasks.named('sourcesJar') { dependsOn 'generateInfrastructureVersions' }
 
+def hostRuntime = gradle.parent?.rootProject?.findProject(':runtime')
+def monorepoRuntime = file("${rootDir}/../runtime/build.gradle").exists()
+
 dependencies {
-    implementation "io.github.brody-0125:spring-test-isolation-runtime:${version}"
+    if (hostRuntime != null) {
+        implementation hostRuntime.tasks.named('jar').flatMap { it.archiveFile }
+    } else if (monorepoRuntime) {
+        implementation files("${rootDir}/../runtime/build/libs/spring-test-isolation-runtime-${version}.jar")
+    } else {
+        implementation "io.github.brody-0125:spring-test-isolation-runtime:${version}"
+    }
     implementation platform("org.testcontainers:testcontainers-bom:${versions.testcontainers}")
     implementation 'org.testcontainers:testcontainers'
     implementation 'org.testcontainers:testcontainers-postgresql'
