@@ -11,7 +11,10 @@ version = rootGradleProps.getProperty('version', '1.0.0')
 apply from: file("${rootDir}/../gradle/dependency-versions.gradle")
 apply from: file("${rootDir}/../gradle/publish-pom.gradle")
 
-repositories { mavenCentral() }
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
 java {
     toolchain { languageVersion = JavaLanguageVersion.of(17) }
     withSourcesJar()
@@ -43,24 +46,11 @@ public final class InfrastructureVersions {
 }
 sourceSets.main.java.srcDir infrastructureVersionsDir
 
-def monorepoRuntime = file("${rootDir}/../runtime/build.gradle").exists()
-def compositeHost = gradle.parent != null
-def runtimeJar = file("${rootDir}/../runtime/build/libs/spring-test-isolation-runtime-${version}.jar")
-
-tasks.named('compileJava') {
-    dependsOn 'generateInfrastructureVersions'
-    if (monorepoRuntime && compositeHost) {
-        dependsOn(gradle.parent.rootProject.project(':runtime').tasks.named('jar'))
-    }
-}
+tasks.named('compileJava') { dependsOn 'generateInfrastructureVersions' }
 tasks.named('sourcesJar') { dependsOn 'generateInfrastructureVersions' }
 
 dependencies {
-    if (monorepoRuntime && compositeHost) {
-        implementation files(runtimeJar)
-    } else {
-        implementation "io.github.brody-0125:spring-test-isolation-runtime:${version}"
-    }
+    implementation "io.github.brody-0125:spring-test-isolation-runtime:${version}"
     implementation platform("org.testcontainers:testcontainers-bom:${versions.testcontainers}")
     implementation 'org.testcontainers:testcontainers'
     implementation 'org.testcontainers:testcontainers-postgresql'

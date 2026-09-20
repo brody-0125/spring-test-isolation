@@ -22,6 +22,13 @@ match_count() {
   echo "${n:-0}"
 }
 
+publish_runtime_to_maven_local() {
+  local root="${1:-$(get_repo_root)}"
+  local gradlew
+  gradlew="$(resolve_gradlew "$root")"
+  (cd "$root" && "$gradlew" :runtime:publishToMavenLocal --console=plain -q)
+}
+
 m2_repository() {
   if [[ -n "${M2_HOME:-}" ]]; then
     echo "$M2_HOME/repository"

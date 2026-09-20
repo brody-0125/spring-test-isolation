@@ -15,6 +15,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/verify-common.sh"
 RepoRoot="$(get_repo_root)"
 cd "$RepoRoot"
 gradlew="$(resolve_gradlew "$RepoRoot")"
+publish_runtime_to_maven_local "$RepoRoot"
 mkdir -p build/evidence
 
 if [[ "$Negative" == true ]]; then
