@@ -49,8 +49,14 @@ sourceSets.main.java.srcDir infrastructureVersionsDir
 tasks.named('compileJava') { dependsOn 'generateInfrastructureVersions' }
 tasks.named('sourcesJar') { dependsOn 'generateInfrastructureVersions' }
 
+def monorepoRuntime = gradle.parent?.rootProject?.findProject(':runtime')
+
 dependencies {
-    implementation "io.github.brody-0125:spring-test-isolation-runtime:${version}"
+    if (monorepoRuntime != null) {
+        implementation monorepoRuntime
+    } else {
+        implementation "io.github.brody-0125:spring-test-isolation-runtime:${version}"
+    }
     implementation platform("org.testcontainers:testcontainers-bom:${versions.testcontainers}")
     implementation 'org.testcontainers:testcontainers'
     implementation 'org.testcontainers:testcontainers-postgresql'
