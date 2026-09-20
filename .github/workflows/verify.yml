@@ -25,8 +25,7 @@ jobs:
           VERSION=$(grep '^version=' gradle.properties | cut -d= -f2)
           rm -rf "$HOME/.m2/repository/io/github/brody-0125/spring-test-isolation-runtime/$VERSION"
           rm -rf "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.brody-0125/spring-test-isolation-runtime"
-          ./gradlew :runtime:clean :runtime:publishToMavenLocal --rerun-tasks
-          ./gradlew :runtime:test :maven-plugin:test :plugin:test :plugin:validatePlugins --refresh-dependencies
+          ./gradlew :runtime:clean :runtime:publishToMavenLocal :runtime:test :maven-plugin:test :plugin:test :plugin:validatePlugins --rerun-tasks --refresh-dependencies
 
   integration:
     runs-on: ubuntu-latest
