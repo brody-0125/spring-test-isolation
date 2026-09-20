@@ -3,7 +3,7 @@ apply from: 'gradle/dependency-versions.gradle'
 allprojects {
     group = findProperty('group') ?: 'io.github.brody-0125'
     version = findProperty('version') ?: '1.0.0'
-    repositories { mavenCentral() }
+    repositories { mavenLocal(); mavenCentral() }
 }
 subprojects {
     apply plugin: 'java-library'
