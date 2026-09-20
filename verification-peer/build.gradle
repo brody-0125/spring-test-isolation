@@ -1,4 +1,4 @@
-apply plugin: io.github.brody0125.springtestisolation.gradle.IsolatedTestsPlugin
+apply plugin: 'io.github.brody0125.springtestisolation.gradle.IsolatedTestsPlugin'
 apply from: '../verification/dependencies.gradle'
 sourceSets.test.java.srcDir '../verification/src/test/java'
 sourceSets.test.resources.srcDir '../verification/src/test/resources'

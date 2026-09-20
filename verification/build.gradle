@@ -1,7 +1,7 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.9.25'
 }
-apply plugin: io.github.brody0125.springtestisolation.gradle.IsolatedTestsPlugin
+apply plugin: 'io.github.brody0125.springtestisolation.gradle.IsolatedTestsPlugin'
 tasks.withType(Test).configureEach { testLogging { exceptionFormat = 'full' } }
 apply from: 'dependencies.gradle'
 def jdbcBackendName = findProperty('jdbcBackend') ?: 'postgresql'
