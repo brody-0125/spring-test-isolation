@@ -76,7 +76,7 @@ Evidence: `./scripts/verify-maven.ps1` or `./scripts/verify-maven.sh` (Docker).
 
 ```powershell
 ./gradlew :runtime:publishToMavenLocal :maven-plugin:publishToMavenLocal
-./gradlew :plugin:publishToMavenLocal
+./gradlew -p plugin publishToMavenLocal
 ```
 
 **Coordinates** (version in [gradle.properties](gradle.properties)):

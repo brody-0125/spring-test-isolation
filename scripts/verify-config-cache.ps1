@@ -4,6 +4,7 @@ $ErrorActionPreference = 'Stop'
 $RepoRoot = Get-RepoRoot
 Push-Location $RepoRoot
 $gradlew = Resolve-GradleWrapper -Root $RepoRoot
+Publish-RuntimeToMavenLocal -Root $RepoRoot
 try {
     New-Item -ItemType Directory -Force 'build/evidence' | Out-Null
     $log = "build/evidence/config-cache-$Workers.log"

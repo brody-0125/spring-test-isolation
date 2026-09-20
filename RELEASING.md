@@ -28,8 +28,8 @@ Artifacts publish to **Maven Central** only; see [PUBLISHING.md](PUBLISHING.md) 
 
 ```powershell
 ./gradlew :runtime:publishToMavenLocal
-./gradlew :plugin:publishToMavenLocal
-./gradlew :plugin:validatePlugins
+./gradlew -p plugin publishToMavenLocal
+./gradlew -p plugin validatePlugins
 ```
 
 Use the consumer example in [README.md](README.md) with `mavenLocal()` and the `version` from [gradle.properties](gradle.properties).

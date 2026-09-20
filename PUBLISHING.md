@@ -39,7 +39,7 @@ dependencies {
 
 ```powershell
 ./gradlew :runtime:publishToMavenLocal :maven-plugin:publishToMavenLocal
-./gradlew :plugin:publishToMavenLocal
+./gradlew -p plugin publishToMavenLocal
 ```
 
 Use `mavenLocal()` in the consumer instead of `mavenCentral()` while testing.

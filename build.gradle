@@ -5,10 +5,7 @@ allprojects {
     version = findProperty('version') ?: '1.0.0'
     repositories { mavenCentral() }
 }
-subprojects { sub ->
-    if (sub.path == ':plugin') {
-        return
-    }
+subprojects {
     apply plugin: 'java-library'
     java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
     tasks.withType(Test).configureEach { useJUnitPlatform() }
