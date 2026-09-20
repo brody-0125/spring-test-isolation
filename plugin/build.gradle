@@ -43,24 +43,21 @@ public final class InfrastructureVersions {
 }
 sourceSets.main.java.srcDir infrastructureVersionsDir
 
-def hostRuntime = gradle.parent?.rootProject?.findProject(':runtime')
 def monorepoRuntime = file("${rootDir}/../runtime/build.gradle").exists()
+def compositeHost = gradle.parent != null
+def runtimeJar = file("${rootDir}/../runtime/build/libs/spring-test-isolation-runtime-${version}.jar")
 
 tasks.named('compileJava') {
     dependsOn 'generateInfrastructureVersions'
-    if (hostRuntime != null) {
-        dependsOn(hostRuntime.tasks.named('jar'))
-    } else if (monorepoRuntime) {
+    if (monorepoRuntime && compositeHost) {
         dependsOn(':runtime:jar')
     }
 }
 tasks.named('sourcesJar') { dependsOn 'generateInfrastructureVersions' }
 
 dependencies {
-    if (hostRuntime != null) {
-        implementation hostRuntime.tasks.named('jar').flatMap { it.archiveFile }
-    } else if (monorepoRuntime) {
-        implementation files("${rootDir}/../runtime/build/libs/spring-test-isolation-runtime-${version}.jar")
+    if (monorepoRuntime && compositeHost) {
+        implementation files(runtimeJar)
     } else {
         implementation "io.github.brody-0125:spring-test-isolation-runtime:${version}"
     }
