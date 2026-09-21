@@ -47,10 +47,11 @@ final class SurefireIsolation {
             systemProperties = new Xpp3Dom("systemPropertyVariables");
             config.addChild(systemProperties);
         }
-        setChildValue(systemProperties, "springtestisolation.descriptor", descriptorPath);
-        setChildValue(systemProperties, "springtestisolation.task", taskName);
+        final Xpp3Dom properties = systemProperties;
+        setChildValue(properties, "springtestisolation.descriptor", descriptorPath);
+        setChildValue(properties, "springtestisolation.task", taskName);
         WorkerFrameworkSettings.junitPlatformSystemProperties()
-                .forEach((key, value) -> setChildValue(systemProperties, key, value));
+                .forEach((key, value) -> setChildValue(properties, key, value));
         surefire.setConfiguration(config);
     }
 
