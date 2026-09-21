@@ -45,12 +45,12 @@ public final class InfrastructureVersions {
     }
 }
 sourceSets.main.java.srcDir infrastructureVersionsDir
+sourceSets.main.java.srcDir("${rootDir}/../descriptor/src/main/java")
 
 tasks.named('compileJava') { dependsOn 'generateInfrastructureVersions' }
 tasks.named('sourcesJar') { dependsOn 'generateInfrastructureVersions' }
 
 dependencies {
-    implementation "io.github.brody-0125:spring-test-isolation-descriptor:${version}"
     implementation platform("org.testcontainers:testcontainers-bom:${versions.testcontainers}")
     implementation 'org.testcontainers:testcontainers'
     implementation 'org.testcontainers:testcontainers-postgresql'
