@@ -27,7 +27,8 @@ jobs:
           rm -rf "$HOME/.m2/repository/io/github/brody-0125/spring-test-isolation-runtime/$VERSION"
           rm -rf "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.brody-0125/spring-test-isolation-descriptor"
           rm -rf "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.brody-0125/spring-test-isolation-runtime"
-          ./gradlew :descriptor:clean :descriptor:publishToMavenLocal :runtime:clean :runtime:publishToMavenLocal :descriptor:test :runtime:test :maven-plugin:test :plugin:test :plugin:validatePlugins --rerun-tasks --refresh-dependencies
+          ./gradlew :descriptor:clean :descriptor:publishToMavenLocal :runtime:clean :runtime:publishToMavenLocal --rerun-tasks
+          ./gradlew :descriptor:test :runtime:test :maven-plugin:test :plugin:test :plugin:validatePlugins --refresh-dependencies
 
   integration:
     runs-on: ubuntu-latest

@@ -15,6 +15,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/verify-common.sh"
 RepoRoot="$(get_repo_root)"
 cd "$RepoRoot"
 gradlew="$(resolve_gradlew "$RepoRoot")"
+publish_runtime_to_maven_local "$RepoRoot"
 mkdir -p build/evidence
 
 if [[ "$Negative" == true ]]; then
@@ -43,8 +44,7 @@ fi
 
 log="build/evidence/workers-${Workers}-negative-False.log"
 set +e
-clear_cached_runtime_artifact "$RepoRoot"
-"$gradlew" :descriptor:clean :descriptor:publishToMavenLocal :runtime:clean :runtime:publishToMavenLocal :runtime:test :verification:test "-Pworkers=$Workers" --rerun-tasks --console=plain >"$log" 2>&1
+"$gradlew" :runtime:test :verification:test "-Pworkers=$Workers" --rerun-tasks --console=plain >"$log" 2>&1
 code=$?
 set -e
 if [[ "$code" -ne 0 ]]; then
