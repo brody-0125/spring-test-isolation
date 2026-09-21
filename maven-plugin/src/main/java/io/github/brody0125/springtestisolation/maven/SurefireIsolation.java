@@ -3,6 +3,7 @@ package io.github.brody0125.springtestisolation.maven;
 import io.github.brody0125.springtestisolation.WorkerFrameworkSettings;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 final class SurefireIsolation {
@@ -10,7 +11,7 @@ final class SurefireIsolation {
 
     private SurefireIsolation() {}
 
-    static Plugin requireSurefire(org.apache.maven.project.MavenProject project) throws MojoExecutionException {
+    static Plugin requireSurefire(MavenProject project) throws MojoExecutionException {
         Plugin plugin = project.getPlugin(SUREFIRE_COORDINATE);
         if (plugin == null) {
             throw new MojoExecutionException(
@@ -21,7 +22,8 @@ final class SurefireIsolation {
 
     static int parseForkCount(Plugin surefire) throws MojoExecutionException {
         Xpp3Dom config = configuration(surefire);
-        String raw = config.getChildValue("forkCount");
+        Xpp3Dom forkCount = config.getChild("forkCount");
+        String raw = forkCount != null ? forkCount.getValue() : null;
         if (raw == null || raw.isBlank()) return 1;
         if (!raw.chars().allMatch(Character::isDigit)) {
             throw new MojoExecutionException(
