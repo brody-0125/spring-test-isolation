@@ -18,7 +18,7 @@ mkdir -p build/evidence
 log="build/evidence/config-cache-${Workers}.log"
 set +e
 clear_cached_runtime_artifact "$RepoRoot"
-"$gradlew" :runtime:clean :runtime:publishToMavenLocal :runtime:test :verification:test "-Pworkers=$Workers" --configuration-cache --rerun-tasks --console=plain >"$log" 2>&1
+"$gradlew" :descriptor:clean :descriptor:publishToMavenLocal :runtime:clean :runtime:publishToMavenLocal :runtime:test :verification:test "-Pworkers=$Workers" --configuration-cache --rerun-tasks --console=plain >"$log" 2>&1
 code=$?
 set -e
 if [[ "$code" -ne 0 ]]; then

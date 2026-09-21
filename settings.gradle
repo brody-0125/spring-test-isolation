@@ -6,10 +6,10 @@ pluginManagement {
     repositories { mavenLocal(); gradlePluginPortal(); mavenCentral() }
 }
 rootProject.name = 'spring-test-isolation'
-include 'runtime', 'maven-plugin', 'verification', 'verification-peer'
+include 'descriptor', 'runtime', 'maven-plugin', 'verification', 'verification-peer'
 
 includeBuild('plugin') {
     dependencySubstitution {
-        substitute(module('io.github.brody-0125:spring-test-isolation-runtime')).using(project(':runtime'))
+        substitute(module('io.github.brody-0125:spring-test-isolation-descriptor')).using(project(':descriptor'))
     }
 }

@@ -44,7 +44,7 @@ fi
 log="build/evidence/workers-${Workers}-negative-False.log"
 set +e
 clear_cached_runtime_artifact "$RepoRoot"
-"$gradlew" :runtime:clean :runtime:publishToMavenLocal :runtime:test :verification:test "-Pworkers=$Workers" --rerun-tasks --console=plain >"$log" 2>&1
+"$gradlew" :descriptor:clean :descriptor:publishToMavenLocal :runtime:clean :runtime:publishToMavenLocal :runtime:test :verification:test "-Pworkers=$Workers" --rerun-tasks --console=plain >"$log" 2>&1
 code=$?
 set -e
 if [[ "$code" -ne 0 ]]; then

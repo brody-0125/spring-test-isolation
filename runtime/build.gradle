@@ -24,6 +24,7 @@ mavenPublishing {
 }
 
 dependencies {
+    api project(':descriptor')
     api "org.springframework:spring-test:${versions.springFramework}"
     api "org.springframework:spring-context:${versions.springFramework}"
     implementation "org.springframework:spring-jdbc:${versions.springFramework}"
