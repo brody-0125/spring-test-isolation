@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Maven plugin `spring-test-isolation-maven-plugin` with `configure` goal: writes a build-owned worker descriptor, maps each Surefire `forkCount` JVM to a worker slot, and forces sequential JUnit execution inside a fork. Does not start PostgreSQL or Redis. See `verification-maven/` and `scripts/verify-maven.*`.
+
 ### Changed
 
 - **BREAKING:** The Gradle plugin no longer starts PostgreSQL or Redis. It attaches to consumer `spring.datasource.url` / `username` / `password` (required) and to Redis only when `spring.data.redis.host` or `spring.data.redis.url` is set. `redis.connection.*` does not attach Redis. Image override DSL (`postgresImage`, `mysqlImage`, `oracleImage`, `redisImage`, `redisLogicalDatabases`) is ignored. 1.1.x remains the line that starts containers.

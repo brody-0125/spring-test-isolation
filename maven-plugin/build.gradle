@@ -1,0 +1,40 @@
+plugins {
+    id 'com.vanniktech.maven.publish'
+}
+apply from: rootProject.file('gradle/publish-pom.gradle')
+apply from: rootProject.file('gradle/dependency-versions.gradle')
+
+base { archivesName = 'spring-test-isolation-maven-plugin' }
+
+java { withSourcesJar() }
+
+dependencies {
+    implementation project(':runtime')
+    def mavenVersion = '3.9.9'
+    compileOnly "org.apache.maven:maven-plugin-api:$mavenVersion"
+    compileOnly "org.apache.maven:maven-core:$mavenVersion"
+    testImplementation "org.apache.maven:maven-plugin-api:$mavenVersion"
+    testImplementation "org.apache.maven:maven-core:$mavenVersion"
+    compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.13.1'
+    annotationProcessor 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.13.1'
+    testImplementation "org.junit.jupiter:junit-jupiter:${versions.junitJupiter}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
+}
+
+def signingConfigured = project.hasProperty('signing.keyId')
+        || project.hasProperty('signingInMemoryKey')
+        || project.hasProperty('signing.secretKeyRingFile')
+
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, true)
+    if (signingConfigured) {
+        signAllPublications()
+    }
+    coordinates(project.group.toString(), 'spring-test-isolation-maven-plugin', project.version.toString())
+    pom {
+        name = 'spring-test-isolation-maven-plugin'
+        description = 'Maven Surefire integration for spring-test-isolation worker forks.'
+        springTestIsolationPom(delegate)
+        packaging = 'maven-plugin'
+    }
+}

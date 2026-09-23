@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <name>spring-test-isolation-maven-plugin</name>
+    <description>Maps Maven Surefire forks to spring-test-isolation workers.</description>
+    <groupId>io.github.brody-0125</groupId>
+    <artifactId>spring-test-isolation-maven-plugin</artifactId>
+    <goalPrefix>spring-test-isolation</goalPrefix>
+    <isolatedRealm>false</isolatedRealm>
+    <mojos>
+        <mojo>
+            <goal>configure</goal>
+            <phase>process-test-resources</phase>
+            <requiresDependencyResolution>test</requiresDependencyResolution>
+            <requiresProject>true</requiresProject>
+            <implementation>io.github.brody0125.springtestisolation.maven.ConfigureMojo</implementation>
+            <language>java</language>
+            <threadSafe>true</threadSafe>
+        </mojo>
+    </mojos>
+</plugin>

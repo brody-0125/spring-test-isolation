@@ -1,5 +1,8 @@
 package io.github.brody0125.springtestisolation.gradle;
 
+import io.github.brody0125.springtestisolation.InfrastructureDescriptor;
+import io.github.brody0125.springtestisolation.WorkerDescriptorFiles;
+import io.github.brody0125.springtestisolation.WorkerFrameworkSettings;
 import org.gradle.api.*;
 import org.gradle.api.provider.*;
 import org.gradle.api.tasks.*;
@@ -9,9 +12,9 @@ import org.gradle.api.tasks.testing.testng.TestNGOptions;
 import org.gradle.process.CommandLineArgumentProvider;
 import io.github.brody0125.springtestisolation.gradle.infrastructure.InfrastructureProviders;
 import java.util.List;
+import java.util.Map;
 
 public class IsolatedTestsPlugin implements Plugin<Project> {
-    private static final String ORDERER = "com.github.seregamorph.testsmartcontext.jupiter.SmartDirtiesClassOrderer";
     public static class ValidateSettings implements Action<Task> {
         @Override public void execute(Task task) {
             validateFramework((Test) task);
@@ -23,10 +26,7 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
             return;
         }
         if (!(test.getOptions() instanceof JUnitPlatformOptions)) test.useJUnitPlatform();
-        test.systemProperty("junit.jupiter.execution.parallel.enabled", "false");
-        test.systemProperty("junit.jupiter.extensions.autodetection.enabled", "true");
-        test.systemProperty("junit.jupiter.testclass.order.default", ORDERER);
-        test.systemProperty("kotest.framework.parallelism", "1");
+        WorkerFrameworkSettings.junitPlatformSystemProperties().forEach(test::systemProperty);
     }
     static void configureTestNG(TestNGOptions options) {
         validateTestNG(options);
@@ -40,11 +40,7 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
         }
         if (!(test.getOptions() instanceof JUnitPlatformOptions))
             throw new GradleException("Only JUnit Platform and TestNG are supported with worker isolation");
-        java.util.Map<String, String> required = java.util.Map.of(
-                "junit.jupiter.execution.parallel.enabled", "false",
-                "junit.jupiter.extensions.autodetection.enabled", "true",
-                "junit.jupiter.testclass.order.default", ORDERER,
-                "kotest.framework.parallelism", "1");
+        Map<String, String> required = WorkerFrameworkSettings.junitPlatformSystemProperties();
         required.forEach((key, value) -> {
             if (!value.equals(String.valueOf(test.getSystemProperties().get(key))))
                 throw new GradleException("Incompatible test setting: " + key + " must be " + value);
@@ -65,8 +61,14 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
             throw new GradleException("TestNG suite XML is unsupported with worker isolation");
     }
     static void validateSlots(Integer slots) {
-        if (slots != null && (slots < 1 || slots > 255)) {
-            throw new GradleException("maxCacheSlots must be between 1 and 255");
+        if (slots == null) return;
+        try {
+            WorkerDescriptorFiles.baseProperties(
+                    InfrastructureDescriptor.DEFAULT_JDBC_BACKEND,
+                    InfrastructureDescriptor.DEFAULT_CACHE_BACKEND,
+                    slots);
+        } catch (IllegalArgumentException e) {
+            throw new GradleException(e.getMessage(), e);
         }
     }
     public abstract static class Options {
@@ -91,8 +93,8 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
     @Override public void apply(Project project) {
         Options options = project.getExtensions().create("isolatedTests", Options.class);
         options.getWorkers().convention(2);
-        options.getJdbcBackend().convention("postgresql");
-        options.getCacheBackend().convention("redis");
+        options.getJdbcBackend().convention(InfrastructureDescriptor.DEFAULT_JDBC_BACKEND);
+        options.getCacheBackend().convention(InfrastructureDescriptor.DEFAULT_CACHE_BACKEND);
         Provider<Containers> service = project.getGradle().getSharedServices()
                 .registerIfAbsent("spring-test-isolation-containers", Containers.class, spec -> {
                     spec.getParameters().getJdbcBackend().set(options.getJdbcBackend());
@@ -104,11 +106,7 @@ public class IsolatedTestsPlugin implements Plugin<Project> {
             test.systemProperty("springtestisolation.task", test.getPath());
             test.usesService(service);
             test.getJvmArgumentProviders().add(new ConnectionArguments(service));
-            test.systemProperty("junit.jupiter.execution.parallel.enabled", "false");
-            test.systemProperty("junit.jupiter.extensions.autodetection.enabled", "true");
-            test.systemProperty("junit.jupiter.testclass.order.default",
-                    ORDERER);
-            test.systemProperty("kotest.framework.parallelism", "1");
+            applyFramework(test);
             test.setForkEvery(0);
             test.doFirst(new ValidateSettings());
         });

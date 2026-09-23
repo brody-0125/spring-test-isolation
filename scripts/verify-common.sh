@@ -22,6 +22,25 @@ match_count() {
   echo "${n:-0}"
 }
 
+clear_cached_runtime_artifact() {
+  local root="${1:-$(get_repo_root)}"
+  local version gradle_home
+  version="$(grep '^version=' "$root/gradle.properties" | cut -d= -f2)"
+  rm -rf "$(m2_repository)/io/github/brody-0125/spring-test-isolation-runtime/$version"
+  rm -rf "$(m2_repository)/io/github/brody-0125/spring-test-isolation-descriptor/$version"
+  gradle_home="${GRADLE_USER_HOME:-$HOME/.gradle}"
+  rm -rf "$gradle_home/caches/modules-2/files-2.1/io.github.brody-0125/spring-test-isolation-runtime"
+  rm -rf "$gradle_home/caches/modules-2/files-2.1/io.github.brody-0125/spring-test-isolation-descriptor"
+}
+
+publish_runtime_to_maven_local() {
+  local root="${1:-$(get_repo_root)}"
+  local gradlew
+  gradlew="$(resolve_gradlew "$root")"
+  clear_cached_runtime_artifact "$root"
+  (cd "$root" && "$gradlew" :descriptor:clean :descriptor:publishToMavenLocal :runtime:clean :runtime:publishToMavenLocal --rerun-tasks --console=plain -q)
+}
+
 m2_repository() {
   if [[ -n "${M2_HOME:-}" ]]; then
     echo "$M2_HOME/repository"

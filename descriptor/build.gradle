@@ -1,0 +1,31 @@
+plugins {
+    id 'com.vanniktech.maven.publish'
+}
+apply from: rootProject.file('gradle/publish-pom.gradle')
+apply from: rootProject.file('gradle/dependency-versions.gradle')
+
+base { archivesName = 'spring-test-isolation-descriptor' }
+
+java { withSourcesJar() }
+
+def signingConfigured = project.hasProperty('signing.keyId')
+        || project.hasProperty('signingInMemoryKey')
+        || project.hasProperty('signing.secretKeyRingFile')
+
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, true)
+    if (signingConfigured) {
+        signAllPublications()
+    }
+    coordinates(project.group.toString(), 'spring-test-isolation-descriptor', project.version.toString())
+    pom {
+        name = 'spring-test-isolation-descriptor'
+        description = 'Shared worker descriptor and test framework settings for Spring Test Isolation integrations.'
+        springTestIsolationPom(delegate)
+    }
+}
+
+dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter:${versions.junitJupiter}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
+}

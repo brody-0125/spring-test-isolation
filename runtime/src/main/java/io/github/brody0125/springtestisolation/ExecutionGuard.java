@@ -18,7 +18,7 @@ public final class ExecutionGuard implements TestExecutionListener {
             if (!parameters.getBoolean("junit.jupiter.extensions.autodetection.enabled").orElse(false))
                 throw new IllegalStateException("WorkerGuardExtension autodetection must remain enabled");
             if (!parameters.get("junit.jupiter.testclass.order.default").orElse("").equals(
-                    "com.github.seregamorph.testsmartcontext.jupiter.SmartDirtiesClassOrderer"))
+                    WorkerFrameworkSettings.SMART_CONTEXT_CLASS_ORDERER))
                 throw new IllegalStateException("SmartDirtiesClassOrderer is required");
             for (TestIdentifier root : plan.getRoots()) for (TestIdentifier node : plan.getDescendants(root)) {
                 var source = node.getSource().orElse(null);
@@ -28,7 +28,7 @@ public final class ExecutionGuard implements TestExecutionListener {
                         .map(a -> a.value() == ExecutionMode.CONCURRENT).orElse(false))
                     throw new IllegalStateException("@Execution(CONCURRENT) is incompatible: " + node.getDisplayName());
                 if (element != null && AnnotationSupport.findAnnotation(element, TestClassOrder.class)
-                        .map(a -> !a.value().getName().equals("com.github.seregamorph.testsmartcontext.jupiter.SmartDirtiesClassOrderer")).orElse(false))
+                        .map(a -> !a.value().getName().equals(WorkerFrameworkSettings.SMART_CONTEXT_CLASS_ORDERER)).orElse(false))
                     throw new IllegalStateException("Custom @TestClassOrder is incompatible: " + node.getDisplayName());
             }
         } catch (Exception e) { WorkerStore.poison(e); }

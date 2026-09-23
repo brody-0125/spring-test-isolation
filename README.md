@@ -25,18 +25,57 @@ Unsupported: `@Nested` with its own context, `@ContextHierarchy`, Redis Cluster/
 |--------|------|
 | `plugin` | `io.github.brody-0125.spring-test-isolation` Gradle plugin (descriptor Build Service; does not start containers) |
 | `runtime` | Spring customizer, `WorkerStore`, listeners, guards |
+| `maven-plugin` | `spring-test-isolation-maven-plugin` (Surefire fork wiring; no containers) |
 | `verification` / `verification-peer` | Docker integration fixtures (not published) |
+| `verification-maven` | Standalone Maven consumer smoke (`forkCount` ≥ 2) |
 
 ## Quick start (consumer project)
 
 **Requirements:** JDK 17, Gradle with JUnit Platform (default, including Kotest) or TestNG (`test { useTestNG() }`), and a PostgreSQL server the tests can reach (`spring.datasource.url` / `username` / `password`). Redis is optional until the application enables a Spring Data Redis client. Docker is required only if **you** start those servers with Testcontainers or Compose — the plugin does not start them.
 
-Publication uses [gradle.properties](gradle.properties) for the version. **Maven Central** is the only public registry — see [PUBLISHING.md](PUBLISHING.md) (plugin marker + runtime JAR).
+Publication uses [gradle.properties](gradle.properties) for the version. **Maven Central** is the only public registry — see [PUBLISHING.md](PUBLISHING.md) (Gradle plugin marker, runtime JAR, Maven plugin).
+
+### Maven (Surefire)
+
+Requirements match Gradle attach: consumer `spring.datasource.url` / `username` / `password`, optional Redis via `spring.data.redis.host` or `spring.data.redis.url`. **`forkCount` is the worker count** (plain integer 1–255; per-core forms like `2C` are unsupported). The Maven plugin does not start containers.
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>io.github.brody-0125</groupId>
+    <artifactId>spring-test-isolation-runtime</artifactId>
+    <version>1.1.0</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+<build>
+  <plugins>
+    <plugin>
+      <groupId>io.github.brody-0125</groupId>
+      <artifactId>spring-test-isolation-maven-plugin</artifactId>
+      <version>1.1.0</version>
+      <executions>
+        <execution><goals><goal>configure</goal></goals></execution>
+      </executions>
+    </plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-surefire-plugin</artifactId>
+      <configuration>
+        <forkCount>2</forkCount>
+        <reuseForks>false</reuseForks>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+```
+
+Evidence: `./scripts/verify-maven.ps1` or `./scripts/verify-maven.sh` (Docker).
 
 **Maven Local** (development, from a clone of this repo):
 
 ```powershell
-./gradlew :runtime:publishToMavenLocal
+./gradlew :runtime:publishToMavenLocal :maven-plugin:publishToMavenLocal
 ./gradlew -p plugin publishToMavenLocal
 ```
 

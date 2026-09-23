@@ -37,5 +37,5 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           VERSION="${{ steps.version.outputs.VERSION }}"
-          ./gradlew :runtime:publishToMavenCentral -Pversion="$VERSION" --no-daemon
+          ./gradlew :descriptor:publishToMavenCentral :runtime:publishToMavenCentral :maven-plugin:publishToMavenCentral -Pversion="$VERSION" --no-daemon
           ./gradlew -p plugin publishToMavenCentral -Pversion="$VERSION" --no-daemon

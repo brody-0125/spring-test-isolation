@@ -7,6 +7,7 @@ All public artifacts ship through **Maven Central** (Sonatype Central Portal). C
 | Runtime | Test dependency | `io.github.brody-0125:spring-test-isolation-runtime:VERSION` |
 | Gradle plugin JAR | Plugin implementation | `io.github.brody-0125:spring-test-isolation-gradle-plugin:VERSION` |
 | Plugin marker | Plugin ID resolution | `io.github.brody-0125.spring-test-isolation.gradle.plugin:io.github.brody-0125.spring-test-isolation.gradle.plugin.gradle.plugin:VERSION` |
+| Maven plugin | Surefire fork wiring | `io.github.brody-0125:spring-test-isolation-maven-plugin:VERSION` |
 
 Version is defined in [gradle.properties](gradle.properties).
 
@@ -37,7 +38,7 @@ dependencies {
 ## Local development
 
 ```powershell
-./gradlew :runtime:publishToMavenLocal
+./gradlew :runtime:publishToMavenLocal :maven-plugin:publishToMavenLocal
 ./gradlew -p plugin publishToMavenLocal
 ```
 
