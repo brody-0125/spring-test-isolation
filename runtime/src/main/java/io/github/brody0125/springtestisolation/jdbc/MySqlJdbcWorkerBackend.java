@@ -16,17 +16,14 @@ public final class MySqlJdbcWorkerBackend implements JdbcWorkerBackend {
     @Override public String id() { return ID; }
 
     @Override public String buildWorkerJdbcUrl(WorkerStore store, String databaseName) {
-        String adminUrl = store.infrastructureProperty(InfrastructureDescriptor.JDBC_URL);
-        int query = adminUrl.indexOf('?');
-        String suffix = query < 0 ? "" : adminUrl.substring(query);
-        String base = query < 0 ? adminUrl : adminUrl.substring(0, query);
-        return base.substring(0, base.lastIndexOf('/') + 1) + databaseName + suffix;
+        return JdbcWorkerUrls.withDatabaseName(store.infrastructureProperty(InfrastructureDescriptor.JDBC_URL), databaseName);
     }
 
-    @Override public void createWorkerDatabase(WorkerStore store, String databaseName) throws SQLException {
+    @Override public void createWorkerDatabase(WorkerStore store, String databaseName) throws Exception {
         try (Connection c = store.openAdminJdbc(); Statement s = c.createStatement()) {
             s.execute("CREATE DATABASE " + quoteIdentifier(databaseName));
         }
+        JdbcInitFunctions.afterWorkerDatabaseCreated(store);
     }
 
     @Override public void resetWorkerData(WorkerStore store) throws Exception {
