@@ -4,6 +4,7 @@ import io.github.brody0125.springtestisolation.cache.CacheWorkerBackend;
 import io.github.brody0125.springtestisolation.cache.CacheWorkerBackends;
 import io.github.brody0125.springtestisolation.jdbc.JdbcWorkerBackend;
 import io.github.brody0125.springtestisolation.jdbc.JdbcWorkerBackends;
+import io.github.brody0125.springtestisolation.jdbc.JdbcWorkerUrls;
 import io.github.brody0125.springtestisolation.jdbc.PostgreSqlJdbcWorkerBackend;
 import java.nio.file.*;
 import java.sql.*;
@@ -60,6 +61,7 @@ public final class WorkerStore implements AutoCloseable {
             throw new IllegalStateException(
                     "spring.datasource.url is required; spring-test-isolation attaches to consumer JDBC and does not start a database");
         }
+        JdbcWorkerUrls.validateAdminUrl(descriptor.getProperty(InfrastructureDescriptor.JDBC_URL));
         jdbcBackend = JdbcWorkerBackends.resolve(descriptor);
         cacheBackend = CacheWorkerBackends.resolve(descriptor);
         int slot = 0;

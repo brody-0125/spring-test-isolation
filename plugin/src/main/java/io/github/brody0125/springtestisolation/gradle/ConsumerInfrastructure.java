@@ -89,6 +89,7 @@ public abstract class ConsumerInfrastructure implements BuildService<ConsumerInf
                     spec.getParameters().getMaxCacheSlots().set(options.getMaxCacheSlots());
                 });
         project.getTasks().withType(Test.class).configureEach(test -> {
+            if ("jdbcTcTest".equals(test.getName())) return;
             test.usesService(infra);
             test.getJvmArgumentProviders().add(new ConnectionArguments(infra));
         });

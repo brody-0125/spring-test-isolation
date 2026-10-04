@@ -1,5 +1,6 @@
 dependencies {
     testImplementation project(':runtime')
+    testImplementation "org.testcontainers:testcontainers-jdbc:${versions.testcontainers}"
     testImplementation "redis.clients:jedis:${versions.jedis}"
     testImplementation platform("org.springframework.boot:spring-boot-dependencies:${versions.springBoot}")
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

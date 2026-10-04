@@ -20,7 +20,7 @@ public final class OracleJdbcWorkerBackend implements JdbcWorkerBackend {
         return store.infrastructureProperty(InfrastructureDescriptor.JDBC_URL);
     }
 
-    @Override public void createWorkerDatabase(WorkerStore store, String databaseName) throws SQLException {
+    @Override public void createWorkerDatabase(WorkerStore store, String databaseName) throws Exception {
         String password = "W1#Worker";
         store.useWorkerJdbcCredentials(databaseName, password);
         String user = userIdentifier(databaseName);
@@ -29,6 +29,7 @@ public final class OracleJdbcWorkerBackend implements JdbcWorkerBackend {
             s.execute("GRANT CREATE SESSION, CREATE TABLE, CREATE VIEW, CREATE SEQUENCE, CREATE PROCEDURE, CREATE TRIGGER TO "
                     + user);
         }
+        JdbcInitFunctions.afterWorkerDatabaseCreated(store);
     }
 
     @Override public void resetWorkerData(WorkerStore store) throws Exception {

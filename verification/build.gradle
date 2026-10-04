@@ -6,6 +6,27 @@ tasks.withType(Test).configureEach { testLogging { exceptionFormat = 'full' } }
 apply from: 'dependencies.gradle'
 def jdbcBackendName = findProperty('jdbcBackend') ?: 'postgresql'
 def jdbcBackendProperty = providers.gradleProperty('jdbcBackend').orElse('postgresql')
+def jdbcTcCredentials = {
+    switch (jdbcBackendName) {
+        case 'mysql': return ['test', 'test']
+        case 'oracle': return ['system', 'oracle']
+        default: return ['test', 'test']
+    }
+}()
+def jdbcTcUrl = {
+    def images = rootProject.containerImages
+    switch (jdbcBackendName) {
+        case 'mysql':
+            def tag = images.mysql.substring(images.mysql.indexOf(':') + 1)
+            return "jdbc:tc:mysql:${tag}///ptk_tc_admin?TC_DAEMON=true&TC_INITFUNCTION=example.JdbcTcInit::schema"
+        case 'oracle':
+            def tag = images.oracle.substring(images.oracle.lastIndexOf(':') + 1)
+            return "jdbc:tc:oracle:${tag}:thin:@//localhost:1521/xepdb1?TC_DAEMON=true&TC_INITFUNCTION=example.JdbcTcInit::schema"
+        default:
+            def tag = images.postgres.substring(images.postgres.indexOf(':') + 1)
+            return "jdbc:tc:postgresql:${tag}///ptk_tc_admin?TC_DAEMON=true&TC_INITFUNCTION=example.JdbcTcInit::schema"
+    }
+}()
 isolatedTests {
     workers = providers.gradleProperty('workers').map { it.toInteger() }.orElse(2)
     jdbcBackend = jdbcBackendName
@@ -20,12 +41,24 @@ test {
         excludeTags 'negative', 'guard'
         includeEngines 'junit-jupiter'
     }
-    exclude '**/session/**'
+    exclude '**/session/**', '**/JdbcTcIsolation*Test.class'
     systemProperty 'fixture.classpath', sourceSets.test.runtimeClasspath.asPath
     maxHeapSize = '384m'
     testLogging { events 'passed', 'failed', 'skipped'; showStandardStreams = true }
 }
 
+tasks.register('jdbcTcTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    include '**/JdbcTcIsolation*Test.class'
+    maxHeapSize = '512m'
+    testLogging { events 'passed', 'failed'; showStandardStreams = true }
+    jvmArgumentProviders.add({
+        [ "-Dspring.datasource.url=${jdbcTcUrl}",
+          "-Dspring.datasource.username=${jdbcTcCredentials[0]}",
+          "-Dspring.datasource.password=${jdbcTcCredentials[1]}" ] as Iterable<String>
+    } as org.gradle.process.CommandLineArgumentProvider)
+}
 tasks.register('workflowTest', Test) {
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath

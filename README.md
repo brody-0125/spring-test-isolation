@@ -134,6 +134,12 @@ spring.datasource.password=secret
 
 This repository’s `verification/build.gradle` is a full example: it starts PostgreSQL and Redis with Testcontainers and injects those properties.
 
+### Testcontainers JDBC (`jdbc:tc:`)
+
+When `spring.datasource.url` uses Testcontainers JDBC (`jdbc:tc:…`), the runtime treats it as admin access to one shared container, creates a **per-worker** database (PostgreSQL/MySQL) or schema user (Oracle), and rewrites `spring.datasource.url` to that worker target. Set `TC_DAEMON=true` so every worker shares the same container. If the URL declares `TC_INITFUNCTION`, that function runs on **each** worker database after it is created (not only on the catalog in the consumer URL). Non-daemon `jdbc:tc` URLs fail fast because each connection would start a separate container.
+
+Evidence: `./gradlew :verification:jdbcTcTest` (PostgreSQL default; `-PjdbcBackend=mysql` or `oracle` for other JDBC backends).
+
 ## Application responsibilities
 
 Implement a `ClassBoundary` bean when you have background work or local state:
