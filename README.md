@@ -14,7 +14,7 @@ The plugin attaches to PostgreSQL the consumer already runs. Redis attaches only
 
 - Runs test **classes** in parallel across Gradle workers; keeps classes and methods **sequential** inside each worker.
 - Shares one consumer-started PostgreSQL server per build (and Redis only when `spring.data.redis.host` or `spring.data.redis.url` is set); each worker gets its own database, and a Redis DB index, ACL user, and Pub/Sub namespace when Redis is attached. The Gradle Build Service owns the descriptor used for allocation, poison, and cleanup — not container processes.
-- Reuses Spring contexts via TestContext; [spring-test-smart-context](https://github.com/seregamorph/spring-test-smart-context) orders classes and closes contexts after the last class in a configuration group.
+- Reuses Spring contexts via TestContext when the same configuration stays open across classes; [spring-test-smart-context](https://github.com/seregamorph/spring-test-smart-context) orders classes and closes contexts after the last class in a configuration group. Suites that apply `@DirtiesContext` on every class (for example `AFTER_CLASS` on a shared base) should not expect context-reuse savings; per-worker storage isolation and class-boundary reset still apply.
 - Clears worker storage between classes (`TRUNCATE` / `FLUSHDB`), runs application `ClassBoundary` hooks, and **poisons** the worker on cleanup or policy failures.
 
 Unsupported: `@Nested` with its own context, `@ContextHierarchy`, Redis Cluster/Sentinel (wontfix for test isolation — [decision note](docs/redis-cluster-sentinel-decision.md)). `@Nested` that inherits the enclosing class context is supported; nested classes share worker storage until the enclosing class ends. Supported runners: JUnit Jupiter (default), TestNG (`useTestNG()`), Kotest on JUnit Platform (`kotest-runner-junit5`). The standalone Kotest Gradle plugin is unsupported.
@@ -193,7 +193,7 @@ Keep `@DirtiesContext` when hooks cannot undo context mutations.
 
 1. Parallel workers; sequential execution within each worker.  
 2. Fixed worker database and Redis DB for the JVM lifetime.  
-3. Pure configuration customizers (no per-class random keys).  
+3. Stable configuration (no per-class random cache keys) can reuse one context across classes until Smart Context closes it after the group's last class; per-class `@DirtiesContext` removes that reuse benefit — storage reset still runs.  
 4. Smart Context ordering and listeners required.  
 5. Worker storage survives context closure; consumer infrastructure survives workers.  
 6. Cleanup failure or policy conflict poisons the worker.  
